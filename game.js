@@ -1,4 +1,4 @@
-// Platanus Hack 26 — Caracas Edition
+// Platanus Hack 26 — Santiago Edition
 // Two-player brick duel. Dash with Button 1, break the word, keep your paddle alive.
 
 const GAME_WIDTH = 800;
@@ -619,7 +619,7 @@ function createStartScreen(scene) {
       .setOrigin(0.5),
   );
   const titleMain = scene.add
-    .text(GAME_WIDTH / 2, 150, 'CARACAS EDITION', {
+    .text(GAME_WIDTH / 2, 150, 'SANTIAGO EDITION', {
       fontFamily: 'monospace', fontSize: '38px', color: '#e1ff00', fontStyle: 'bold',
     })
     .setOrigin(0.5);
@@ -899,20 +899,29 @@ function createBall(scene, x, y, color, startingOwner) {
 function buildTextBricks(scene) {
   scene.playfield.bricks.clear(true, true);
 
-  // CARACAS in a 4×7 pixel font, centered across the cabinet playfield.
+  // SANTIAGO in a 4×7 pixel font, centered across the cabinet playfield. Eight letters
+  // need 39 columns (4 each plus a gap): at 17 px a column they span 663 px, inside the
+  // same 680 px field the 20 px columns of shorter words used.
+  const WORD = 'SANTIAGO';
+  const CELL = 17;
   const letters = {
-    C: ['0111', '1000', '1000', '1000', '1000', '1000', '0111'],
-    A: ['0110', '1001', '1001', '1111', '1001', '1001', '1001'],
-    R: ['1110', '1001', '1001', '1110', '1010', '1001', '1001'],
     S: ['0111', '1000', '1000', '0110', '0001', '0001', '1110'],
+    A: ['0110', '1001', '1001', '1111', '1001', '1001', '1001'],
+    N: ['1001', '1101', '1101', '1011', '1011', '1001', '1001'],
+    T: ['1111', '0110', '0110', '0110', '0110', '0110', '0110'],
+    I: ['1111', '0110', '0110', '0110', '0110', '0110', '1111'],
+    G: ['0111', '1000', '1000', '1011', '1001', '1001', '0111'],
+    O: ['0110', '1001', '1001', '1001', '1001', '1001', '0110'],
   };
+  const columns = WORD.length * 5 - 1;
+  const left = GAME_WIDTH / 2 - (columns * CELL) / 2 + CELL / 2;
   const brickData = [];
-  for (let letter = 0; letter < 7; letter++) {
-    const pixels = letters['CARACAS'[letter]];
+  for (let letter = 0; letter < WORD.length; letter++) {
+    const pixels = letters[WORD[letter]];
     for (let row = 0; row < 7; row++) {
       for (let col = 0; col < 4; col++) {
         if (pixels[row][col] === '1') {
-          brickData.push([70 + (letter * 5 + col) * 20, 257 + row * 12, (letter + row + col) % 4]);
+          brickData.push([left + (letter * 5 + col) * CELL, 257 + row * 12, (letter + row + col) % 4]);
         }
       }
     }
@@ -921,7 +930,7 @@ function buildTextBricks(scene) {
   const colors = [COLORS.brickA, COLORS.brickB, COLORS.brickC, COLORS.brickD];
 
   for (const [bx, by, ci] of brickData) {
-    const brick = scene.add.rectangle(bx, by, 18, 10, colors[ci], 1);
+    const brick = scene.add.rectangle(bx, by, CELL - 2, 10, colors[ci], 1);
     brick.setStrokeStyle(1, COLORS.cell, 0.7);
     scene.physics.add.existing(brick, true);
     scene.playfield.bricks.add(brick);

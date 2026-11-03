@@ -1,10 +1,10 @@
 # 🎮 Platanus Hack 26: Arcade Challenge
 
-At [Platanus Hack 26: Caracas](https://hack.platan.us/26-ve) (23-25 October) we will have an arcade machine. While we could put some cool retro games on it, it is way better if it can be turned into a challenge.
+At [Platanus Hack 26: Santiago](https://hack.platan.us/26-cl) (20-22 November) we will have an arcade machine. While we could put some cool retro games on it, it is way better if it can be turned into a challenge.
 
 **Your mission:** Build the best arcade game using Phaser 3 (JS Game Lib) that will run on our physical arcade machine!
 
-👾 See all submitted games at [hack.platan.us/26/arcade](https://hack.platan.us/26/arcade?event=26-ve)
+👾 See all submitted games at [hack.platan.us/26/arcade](https://hack.platan.us/26/arcade?event=26-cl)
 
 Open to everyone — you don't need to be a hackathon participant and you can join from anywhere in the world.
 
@@ -14,21 +14,21 @@ Open to everyone — you don't need to be a hackathon participant and you can jo
 
 ### 🥇 Best Game: chosen by Platanus Team
 - 💵 **$150 USDC**
-- 🎟️ **A slot to participate in Platanus Hack 26: Caracas**
+- 🎟️ **A slot to participate in Platanus Hack 26: Santiago**
 - 🎮 **Your game featured on the arcade machine**
 
-🏁 Deadline: **October 21, 2026 at 23:59 (Caracas time, UTC−4)**
+🏁 Deadline: **November 18, 2026 at 23:59 (Santiago time, UTC−3)**
 
 ### 🤩 Most Popular Game: chosen by the community
 - 💵 **$150 USDC**
-- 🎟️ **A slot to participate in Platanus Hack 26: Caracas**
+- 🎟️ **A slot to participate in Platanus Hack 26: Santiago**
 - 🎮 **Your game featured on the arcade machine**
 
-🏁️ Voting deadline: **October 23, 2026 at 23:59 (Caracas time, UTC−4)**
+🏁️ Voting deadline: **November 20, 2026 at 23:59 (Santiago time, UTC−3)**
 
 ## ⏰ Deadline & Submission
 
-**Deadline:** Wednesday, October 21, 2026 at 23:59 (Caracas time, UTC−4)
+**Deadline:** Wednesday, November 18, 2026 at 23:59 (Santiago time, UTC−3)
 
 ### How to Submit
 
