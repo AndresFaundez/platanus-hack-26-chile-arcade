@@ -37,16 +37,22 @@ for (const [code, keys] of Object.entries(CABINET_KEYS)) {
   for (const k of keys) K2A[k.length === 1 ? k.toLowerCase() : k] = code;
 }
 const held = {}, tap = {}, edge = {};
+let LT = 0; // momento del último input (ms): demo e inactividad
 const keyCode = (e) => K2A[e.key.length === 1 ? e.key.toLowerCase() : e.key];
 window.addEventListener('keydown', (e) => {
   const c = keyCode(e);
-  if (c) { if (!e.repeat) tap[c] = true; held[c] = true; }
-  if (AC && AC.state === 'suspended') AC.resume();
+  LT = Date.now();
+  // e.key[1]: flechas y Enter, para que no hagan scroll en la página que contiene el juego
+  if (c) { if (e.key[1]) e.preventDefault(); if (!e.repeat) tap[c] = true; held[c] = true; }
+  if (AC?.state === 'suspended') AC.resume();
 });
 window.addEventListener('keyup', (e) => {
   const c = keyCode(e);
   if (c) held[c] = false;
 });
+// Si el juego pierde el foco el keyup nunca llega: se sueltan todas las teclas para que no queden pegadas.
+// (addEventListener y no window.onblur: Phaser reemplaza window.onblur al arrancar)
+window.addEventListener('blur', () => { for (const k in held) held[k] = false; });
 // Botones recién presionados desde el último paso (no se pierden toques más cortos que un frame).
 function poll() {
   for (const c in CABINET_KEYS) { edge[c] = !!tap[c]; tap[c] = false; }
@@ -133,6 +139,8 @@ const DODGE = { s: 0, a: 0, r: 24, inv: 20, dodge: 1 };
 // Parry (botón 6): ventana de 8 frames; si te golpean en ella no recibes daño y el rival queda expuesto.
 const PARRY = { s: 0, a: 8, r: 16, parry: 1 };
 const THROW = { s: 2, a: 0, r: 20 };
+// Movimientos de joystick escritos mirando a la derecha
+const QF = '↓↘→', QB = '↓↙←';
 
 const CH = [
   {
@@ -143,7 +151,7 @@ const CH = [
     S2: { s: 12, a: 0, r: 26, fire: 'cannon', t: '¡CAÑONAZO!' },
     X: { s: 2, a: 36, r: 16, d: 5, hb: [44, 70, 96, 110], k: 4, hs: 16, sp: 1, multi: 6, dash: 15, sw: 1 },
     xt: '¡AL ABORDAJE, MUCHACHOS!', rt: '¡HURRA!',
-    ml: ['↓↘→ + golpe: ¡Abordaje!', '↓↙← + golpe: Cañonazo', '↓↘→ + 2 golpes: SÚPER ¡Al abordaje!'],
+    ml: ['¡Abordaje!', 'Cañonazo', '¡Al abordaje!'],
     win: 'Mientras yo viva, esa bandera flameará en su lugar.',
   },
   {
@@ -154,7 +162,7 @@ const CH = [
     S2: { s: 3, a: 14, r: 18, d: 9, hb: [26, 140, 64, 70], k: 9, hs: 24, sp: 1, air: 1, lp: [2, -15], inv: 10, kick: 1, kd: 1, t: '¡CHILENA!' },
     X: { s: 2, a: 40, r: 14, rep: 8 },
     xt: '¡METO PUROS GOLES DE CABEZA!', rt: '¡GOL!',
-    ml: ['↓↘→ + golpe: Cabezazo', '↓↙← + golpe: Chilena', '↓↘→ + 2 golpes: SÚPER Lluvia de goles'],
+    ml: ['Cabezazo', 'Chilena', 'Lluvia de goles'],
     win: 'No fue culpa mía, yo estoy bien, mi familia está bien y gracias por todo.',
   },
   {
@@ -165,7 +173,7 @@ const CH = [
     S2: { s: 6, a: 0, r: 16, fire: 'no', t: '¡NO!' },
     X: { s: 2, a: 40, r: 14, rep: 10 },
     xt: '¡NONONONONONO!', rt: '¡PADRINO!',
-    ml: ['↓↘→ + golpe: ¿Qué pasó padrino?', '↓↙← + golpe: ¡NO!', '↓↘→ + 2 golpes: SÚPER ¡NONONO!'],
+    ml: ['¿Qué pasó padrino?', '¡NO!', '¡NONONO!'],
     win: '¿Qué pasó padrino?',
   },
   {
@@ -176,7 +184,7 @@ const CH = [
     S2: { s: 10, a: 0, r: 16, fire: 'lob', t: '¡GLOBO!' },
     X: { s: 2, a: 0, r: 10, fire: 'massuX' },
     xt: '¡NADA ES IMPOSIBLE!', rt: '¡VAMOS!',
-    ml: ['↓↘→ + golpe: Saque', '↓↙← + golpe: Globo', '↓↘→ + 2 golpes: SÚPER Doble oro'],
+    ml: ['Saque', 'Globo', 'Doble oro'],
     win: '¡En la vida nada es imposible, weón! ¡Ni una wea!',
   },
 ];
@@ -184,12 +192,12 @@ const CH = [
 for (const c of CH) {
   c.N = {};
   for (const k in B) {
-    const m = Object.assign({}, B[k], c.o[k]);
+    const m = { ...B[k], ...c.o[k] };
     c.N[k] = m;
-    c.N['a' + k] = Object.assign({}, m, {
-      s: m.s + 1, d: M.round(m.d * 1.3), an: 1, kick: 0, sw: 0,
+    c.N['a' + k] = {
+      ...m, s: m.s + 1, d: M.round(m.d * 1.3), an: 1, kick: 0, sw: 0,
       hb: [m.hb[0] + 30, m.hb[1], m.hb[2] + 18, m.hb[3] + 6],
-    });
+    };
   }
 }
 const FX_WORDS = ['¡PUM!', '¡PAF!', '¡ZAS!', '¡TOING!', '¡CRACK!', '¡POW!'];
@@ -293,14 +301,20 @@ function loadSprites(sc) {
   for (const id in SPR) for (const k of [id, id + 'A']) if (!sprReq[k]) { sprReq[k] = 1; sc.textures.addBase64(k, d91(k === id ? SPR[id].s : SPR[id].a)); }
 }
 const hasSpr = (sc, id) => SPR[id] && sc.textures.exists(id) && sc.textures.exists(id + 'A');
+// Corre fn apenas exista la textura `key` (las imágenes base64 cargan de forma asíncrona)
+function whenTex(sc, key, fn) {
+  if (sc.textures.exists(key)) return fn();
+  const h = (k) => { if (k === key) { sc.textures.off('addtexture', h); fn(); } };
+  sc.textures.on('addtexture', h);
+}
 
 // Qué cuadro de la hoja corresponde al estado actual
 function sprFrame(f) {
-  const p = (f.pose = poseOf(f)), m = f.mv && f.mv.d, k = (f.mv && f.mv.k) || '';
-  if (m && m.dodge) return 2;
+  const p = (f.pose = poseOf(f)), m = f.mv?.d, k = f.mv?.k || '';
+  if (m?.dodge) return 2;
   if (p === 'ko') return 5;
   if (p === 'hit') return 4;
-  if (k === 'throw' || (m && m.fire && f.mv.t >= m.s)) return 6;
+  if (k === 'throw' || (m?.fire && f.mv.t >= m.s)) return 6;
   if (p === 'jump') return 2;
   if (p === 'crouch' || (p === 'block' && f.cr)) return 3;
   if (p === 'walk') return (f.anim >> 3) & 1;
@@ -320,10 +334,10 @@ function drawSpr(sc, f, n, gb, gf, dep) {
   gb.fs(0, 0.35); gb.fe(f.x, (f.sy || FL) + 2, 70, 12);
   const im = f.img.setFrame(sprFrame(f)).setPosition(f.x, f.y + 3).ss(3 * f.fa, 3).sd(dep);
   im.sl(f.ck && n % 8 < 4 ? 0.4 : 1);
-  if (f.mv && f.mv.d.parry && f.mv.t < f.mv.d.a) im.setTintFill(0xdff6ff);
+  if (f.mv?.d.parry && f.mv.t < f.mv.d.a) im.setTintFill(0xdff6ff);
   else if (f.pose === 'block') im.setTint(0x9fd8ff); else if (f.buff) im.setTint(0xffe27a); else if (f.alt) im.setTint(0xb8a0ff); else im.clearTint();
   if (f.ck > 0 && n % 8 < 4) { gf.ls(3, 0xff4fa3); gf.strokeCircle(f.x, f.y - 140, 16 + (n % 8)); }
-  const a = f.aimg, m = f.mv && f.mv.d, act = m && (m.an || m.rush) && isActive(f);
+  const a = f.aimg, m = f.mv?.d, act = (m?.an || m?.rush) && isActive(f);
   const vis = f.an && !f.away && f.st !== 'ko';
   a.setVisible(vis);
   if (!vis) return;
@@ -350,9 +364,7 @@ function drawStage(sc) {
   g.fs(0xc8625a); g.fr(0, 0, W, 433); // cielo de respaldo mientras carga la imagen
   g.fs(0xa18b36); g.fr(0, 432, W, 168); g.fs(0x8c7830); g.fr(0, 432, W, 12);
   g.fs(0x2e2236); g.ft(0, 600, 50, 500, 130, 600); g.ft(80, 560, 110, 525, 150, 560); g.ft(690, 600, 760, 495, 800, 600);
-  const put = () => sc.add.image(0, 0, 'stg').so(0).setDisplaySize(W, 433).sd(-0.5);
-  if (sc.textures.exists('stg')) put();
-  else { const h = (key) => { if (key === 'stg') { sc.textures.off('addtexture', h); put(); } }; sc.textures.on('addtexture', h); }
+  whenTex(sc, 'stg', () => sc.add.image(0, 0, 'stg').so(0).setDisplaySize(W, 433).sd(-0.5));
   g.fs(0, 0.25); g.fr(0, FL, W, H - FL);
   return g;
 }
@@ -399,23 +411,36 @@ function txt(sc, x, y, s, size, col = '#ffffff', stroke = '#000000') {
   return sc.add.text(x, y, s, { fontFamily: FONT, fontSize: size + 'px', color: col, stroke, strokeThickness: M.max(3, size / 6), align: 'center' }).so(0.5);
 }
 const hex = (n) => '#' + n.toString(16).padStart(6, '0');
+const blink = (sc, t) => sc.tweens.add({ targets: t, alpha: 0.2, yoyo: true, repeat: -1, duration: 500 });
+// Consejos: se listan en el título y sale uno al empezar cada round (B1–B6 = nombres de botón del sitio)
+const TIPS = [
+  'B1 B2 B3: GOLPES · ATRÁS: BLOQUEA',
+  QF + ' o ' + QB + ' + GOLPE: ESPECIAL',
+  QF + ' + 2 GOLPES: SÚPER',
+  'B4: STAND (MÁS ALCANCE)',
+  'B5: ESQUIVA · B6: PARRY',
+  '→→: DASH · → + B3: AGARRE',
+  'PLÁTANO: +SÚPER Y STAND',
+];
+let TI = 0; // próximo consejo (también elige la pareja de la demo)
 function ftxt(S, x, y, s, col, size = 26) {
   const t = txt(S, x, y, s, size, hex(col)).sd(20).sa(Phaser.Math.Between(-12, 12));
   S.tweens.add({ targets: t, y: y - 50, alpha: 0, scale: 1.3, duration: 900, ease: 'Cubic.easeOut', onComplete: () => t.destroy() });
 }
 function proj(S, f, kind, x, y, vx, vy, o) {
-  const p = Object.assign({ o: f, kind, x, y, vx, vy, g: 0, t: 120 }, o);
+  const p = { o: f, kind, x, y, vx, vy, g: 0, t: 120, ...o };
   S.pr.push(p);
   return p;
 }
 const overlap = (a, b) => M.abs(a.x - b.x) * 2 < a.w + b.w && M.abs(a.y - b.y) * 2 < a.h + b.h;
 function hurtbox(f) { const h = f.cr && f.gr ? 84 : 120; return { x: f.x, y: f.y - h / 2, w: 48, h }; }
 const stocks = (f) => M.floor(f.mt / 100);
+const gain = (f, n) => (f.mt = M.min(300, f.mt + n)); // súper: máx. 3 niveles
 
 function makeFighter(c, p, x, alt) {
   return {
     c, p, x, y: FL, vx: 0, vy: 0, fa: p ? -1 : 1, hp: c.hp, mt: 0, st: 'idle', sn: 0, mv: null, gr: true, cr: false,
-    buff: 0, combo: 0, anim: 0, alt, an: false, ag: 100, ck: 0, away: false, jumps: 0, dn: 0, dash: 0,
+    hd: 1, buff: 0, combo: 0, anim: 0, alt, an: false, ag: 100, ck: 0, away: false, jumps: 0, dn: 0, dash: 0,
     inp: { l: 0, r: 0, u: 0, d: 0 }, hist: [], pend: [], pendT: 0, pdir: 5, tick: 0, last6: -99, last4: -99, ait: 0, ch: 0,
   };
 }
@@ -446,20 +471,19 @@ class Title extends Phaser.Scene {
     drawStage(this);
     this.add.rectangle(W / 2, H / 2, W, H, 0x000000, 0.45);
     // logo (puede tardar unos ms en cargar la primera vez)
-    const logo = () => { const l = this.add.image(W / 2, 175, 'logo').ss(4); this.tweens.add({ targets: l, scale: 4.2, yoyo: true, repeat: -1, duration: 700, ease: 'Sine.easeInOut' }); };
-    if (this.textures.exists('logo')) logo();
-    else { const h = (k) => { if (k === 'logo') { this.textures.off('addtexture', h); logo(); } }; this.textures.on('addtexture', h); }
+    whenTex(this, 'logo', () => this.tweens.add({ targets: this.add.image(W / 2, 175, 'logo').ss(4), scale: 4.2, yoyo: true, repeat: -1, duration: 700, ease: 'Sine.easeInOut' }));
     this.opts = [txt(this, W / 2, 365, '1 JUGADOR  vs  CPU', 30), txt(this, W / 2, 408, '2 JUGADORES', 30)];
     this.cur = 0;
-    this.hint = txt(this, W / 2, 460, 'START o BOTÓN 1 PARA ELEGIR', 18, '#ffe14d');
-    txt(this, W / 2, 508, '1 Débil · 2 Medio · 3 Fuerte · 4 STAND · 5 Esquivar · 6 Parry', 14, '#ffffff');
-    txt(this, W / 2, 530, '↓↘→ o ↓↙← + golpe: especial · ↓↘→ + 2 golpes: SÚPER', 13, '#ffb3d9');
-    txt(this, W / 2, 552, '→→ dash · → + 3 agarre · atrás bloquea', 13, '#dddddd');
-    txt(this, W / 2, 580, 'Platanus Hack 26 · Santiago', 12, '#aa88cc');
-    this.tweens.add({ targets: this.hint, alpha: 0.2, yoyo: true, repeat: -1, duration: 500 });
+    LT = Date.now();
+    blink(this, txt(this, W / 2, 460, 'START o B1 PARA ELEGIR', 18, '#ffe14d'));
+    // Cómo jugar: los mismos consejos de los rounds, en dos columnas
+    TIPS.forEach((s, i) => txt(this, i % 2 ? 590 : 210, 500 + (i >> 1) * 19, s, 13, '#dddddd'));
+    txt(this, W / 2, 584, 'Platanus Hack 26 · Santiago', 12, '#aa88cc');
   }
   update() {
     poll();
+    // 20 s sin tocar nada: demo CPU vs CPU (modo 0); li: 2 = CPU a plena fuerza
+    if (Date.now() - LT > 2e4) return this.scene.start('F', { mode: 0, a: TI % 4, b: (TI + 2) % 4, li: 2 });
     if (any('P1_U', 'P1_D', 'P2_U', 'P2_D')) { this.cur ^= 1; sfx.sel(); }
     this.opts.forEach((o, i) => o.setColor(i === this.cur ? '#ffe14d' : '#777777').ss(i === this.cur ? 1.1 : 1));
     if (edge.START2) { sfx.ok(); this.scene.start('S', { mode: 2 }); }
@@ -476,25 +500,27 @@ class Select extends Phaser.Scene {
     this.add.rectangle(W / 2, H / 2, W, H, 0x170b26);
     txt(this, W / 2, 40, 'ELIGE A TU LUCHADOR', 32, '#ffe14d', '#7a0f3a').sa(-3);
     this.g = this.add.graphics();
-    this.cur = [0, 1];
+    this.cur = [data.a || 0, 1]; // con un retador nuevo, el P1 conserva su luchador marcado
     this.lock = [false, this.mode === 1];
     this.cards = CH.map((c, i) => {
       const x = 115 + i * 190;
       txt(this, x, 318, c.n, 16);
       txt(this, x, 337, c.sub, 12, '#ffb3d9');
-      txt(this, x, 354, 'Stand: ' + c.an, 11, hex(c.ac));
+      txt(this, x, 354, 'Stand: ' + c.an, 12, hex(c.ac));
       const f = makeFighter(c, 0, x + 18, false);
       f.an = true;
       return { x, f };
     });
     const cols = this.mode === 2 ? [200, 600] : [400];
-    this.lists = cols.map((x) => txt(this, x, 455, '', 13, '#ffffff').setLineSpacing(6));
-    txt(this, W / 2, 578, this.mode === 1 ? 'BOTÓN 1 confirma · BOTÓN 2 vuelve' : 'BOTÓN 1 confirma · BOTÓN 2 cancela', 13, '#aaaaaa');
+    this.lists = cols.map((x) => txt(this, x, 455, '', 13).setLineSpacing(6));
+    txt(this, W / 2, 578, 'B1 confirma · B2 vuelve', 13, '#dddddd');
+    if (data.ch) this.tweens.add({ targets: txt(this, W / 2, 385, '¡NUEVO RETADOR!', 40, '#ff6ec7', '#7a0f3a').sa(-4), alpha: 0, delay: 1800, duration: 400 });
     this.wait = -1;
   }
-  update() {
+  update(_, dt) {
     poll();
-    if (this.mode === 1 && edge.P1_2 && !this.lock[0]) { this.scene.start('T'); return; }
+    // B2 sin haber elegido vuelve al título (en ambos modos); 60 s sin input también
+    if (Date.now() - LT > 6e4 || (edge.P1_2 && !this.lock[0])) return this.scene.start('T');
     const np = this.mode === 2 ? 2 : 1;
     for (let p = 0; p < np; p++) {
       const P = p ? 'P2_' : 'P1_';
@@ -508,8 +534,8 @@ class Select extends Phaser.Scene {
     g.clear();
     this.cards.forEach((cd) => {
       g.fs(0x2a1640); g.fr(cd.x - 85, 70, 170, 235);
-      cd.f.anim++;
-      Object.assign(cd.f, { y: 292, sy: 292 });
+      cd.f.anim += dt * 0.06; // en cuadros de 60 Hz, aunque la pantalla vaya a 120/144 Hz
+      cd.f.y = cd.f.sy = 292;
       if (hasSpr(this, cd.f.c.id)) drawSpr(this, cd.f, cd.f.anim, g, g, 2);
     });
     const C = [0xe1ff00, 0xff6ec7];
@@ -517,10 +543,10 @@ class Select extends Phaser.Scene {
       const x = this.cards[this.cur[p]].x, o = p * 6;
       g.ls(this.lock[p] ? 8 : 4, C[p]); g.strokeRect(x - 85 - o, 70 - o, 170 + o * 2, 235 + o * 2);
       const c = CH[this.cur[p]];
-      this.lists[p].setText([(np === 2 ? 'P' + (p + 1) + ': ' : '') + c.n, ...c.ml, '↓↙← + STAND: Ráfaga (con Stand)'].join('\n')).setColor(np === 2 ? hex(C[p]) : '#ffffff');
+      this.lists[p].setText([(np === 2 ? 'P' + (p + 1) + ': ' : '') + c.n, ...c.ml.map((m, i) => [QF + ' + golpe: ', QB + ' + golpe: ', QF + ' + 2 golpes: SÚPER '][i] + m), QB + ' + B4: Ráfaga (Stand + 1 súper)'].join('\n')).setColor(np === 2 ? hex(C[p]) : '#ffffff');
     }
-    if (this.lock[0] && this.lock[1] && this.wait < 0) this.wait = 40;
-    if (this.wait > 0 && --this.wait === 0) {
+    if (this.lock[0] && this.lock[1] && this.wait < 0) this.wait = 667; // ms
+    if (this.wait > 0 && (this.wait -= dt) <= 0) {
       const a = this.cur[0];
       if (this.mode === 1) {
         const ladder = Phaser.Utils.Array.Shuffle([0, 1, 2, 3].filter((i) => i !== a));
@@ -545,12 +571,17 @@ class Fight extends Phaser.Scene {
     this.f = [makeFighter(A, 0, 0, false), makeFighter(B2, 1, 0, data.a === data.b)];
     this.wins = [0, 0];
     this.round = 0;
-    txt(this, 20, 62, A.n, 15).so(0, 0.5).sd(11);
-    txt(this, W - 20, 62, (data.mode === 1 ? 'CPU · ' : '') + B2.n, 15).so(1, 0.5).sd(11);
-    txt(this, W / 2, 30, '∞', 40, '#ffe14d').sd(11);
+    txt(this, 20, 62, 'P1 · ' + A.n, 15).so(0, 0.5).sd(11);
+    txt(this, W - 20, 62, (data.mode === 1 ? 'CPU · ' : 'P2 · ') + B2.n, 15).so(1, 0.5).sd(11);
+    this.tT = txt(this, W / 2, 30, '', 40, '#ffe14d').sd(11); // reloj del round
     this.comboT = [txt(this, 110, 180, '', 26, '#ffe14d').sd(11), txt(this, W - 110, 180, '', 26, '#ff6ec7').sd(11)];
     this.superT = [txt(this, 20, 574, '', 14, '#ffe14d').so(0, 0.5).sd(11), txt(this, W - 20, 574, '', 14, '#ffe14d').so(1, 0.5).sd(11)];
-    this.anT = [txt(this, 20, 82, '', 11, '#6fd3ff').so(0, 0.5).sd(11), txt(this, W - 20, 82, '', 11, '#6fd3ff').so(1, 0.5).sd(11)];
+    this.anT = [txt(this, 20, 82, '', 13, '#6fd3ff').so(0, 0.5).sd(11), txt(this, W - 20, 82, '', 13, '#6fd3ff').so(1, 0.5).sd(11)];
+    // Torpeza de la CPU: 14 en la pelea 1, 10 en la 2, 6 en la 3 (y la demo). Más alto = decide más lento,
+    // bloquea, hace parry y usa súper menos seguido (ver readCPU).
+    this.lv = 14 - data.li * 4;
+    // Demo (modo 0): sin sonido (Title vuelve a activar AC) y con aviso para jugar
+    if (!data.mode) { AC = null; blink(this, txt(this, W / 2, 585, 'PRESIONA START', 16, '#ffe14d').sd(11)); }
     this.acc = 0;
     this.n = 0;
     this.newRound();
@@ -564,7 +595,7 @@ class Fight extends Phaser.Scene {
       const m = f.mt || 0;
       Object.assign(f, makeFighter(f.c, f.p, x, f.p && this.d.a === this.d.b), { mt: m });
     }
-    (this.pr || []).forEach((p) => p.img && p.img.destroy());
+    (this.pr || []).forEach((p) => p.img?.destroy());
     this.pr = [];
     this.sparks = [];
     this.ph = 'intro';
@@ -574,7 +605,9 @@ class Fight extends Phaser.Scene {
     this.ship = 0;
     this.ban = null; // plátano en el escenario
     this.banT = 1200; // frames de pelea hasta que caiga el próximo (20 s)
-    this.announce('ROUND ' + this.round, 56, 900);
+    this.tm = 5940; // 99 s a 60 Hz
+    this.announce(this.wins[0] && this.wins[1] ? 'ROUND FINAL' : 'ROUND ' + this.round, 56, 900);
+    this.announce(TIPS[TI++ % TIPS.length], 20, 2400, 335); // un consejo por round
     this.time.delayedCall(950, () => { this.announce('¡PELEA!', 72, 700); sfx.bell(); });
   }
 
@@ -588,8 +621,8 @@ class Fight extends Phaser.Scene {
   superFlash(f, text, frames = 54) {
     const ov = this.add.rectangle(W / 2, H / 2, W, H, 0x12001f, 0.7).sd(25);
     const col = f.p ? '#ff6ec7' : '#e1ff00';
-    const a = txt(this, W / 2, H / 2 - 30, text, 46, col, '#000000').sd(26).sa(-8).ss(3);
-    const b = txt(this, W / 2, H / 2 + 40, f.c.n, 22, '#ffffff').sd(26).sa(-8);
+    const a = txt(this, W / 2, H / 2 - 30, text, 46, col).sd(26).sa(-8).ss(3);
+    const b = txt(this, W / 2, H / 2 + 40, f.c.n, 22).sd(26).sa(-8);
     const bars = [txt(this, 70, 120, '!!', 80, col).sd(26), txt(this, W - 70, H - 120, '!!', 80, col).sd(26)];
     this.tweens.add({ targets: a, scale: 1, duration: 260, ease: 'Back.easeOut' });
     this.tweens.add({ targets: bars, scale: 1.4, yoyo: true, repeat: 3, duration: 120 });
@@ -618,10 +651,10 @@ class Fight extends Phaser.Scene {
     if (k === 'dodge') m = DODGE;
     else if (k === 'parry') m = PARRY;
     else if (k === 'throw') {
-      if (!f.gr || f.mv || M.abs(o.x - f.x) > 78 || !o.gr || o.sn > 0 || o.st === 'down' || o.st === 'ko' || (o.mv && o.mv.d.inv)) return false;
+      if (!f.gr || f.mv || M.abs(o.x - f.x) > 78 || !o.gr || o.sn > 0 || o.st === 'down' || o.st === 'ko' || o.mv?.d.inv) return false;
       m = THROW;
       o.hp -= 12; o.vx = f.fa * 7; o.vy = -9; o.gr = false; o.st = 'hit'; o.sn = 34; o.kd = 1; o.mv = null;
-      f.mt = M.min(300, f.mt + 25);
+      gain(f, 25);
       ftxt(this, o.x, o.y - 150, '¡AL SUELO!', 0xffe14d, 28);
       sfx.heavy();
       this.cameras.main.shake(140, 0.008);
@@ -636,7 +669,7 @@ class Fight extends Phaser.Scene {
     if (f.gr && !m.air) f.vx = 0;
     if (m.lp) { f.vx = m.lp[0] * f.fa; f.vy = m.lp[1]; f.gr = false; }
     if (m.t) ftxt(this, f.x, f.y - 170, m.t, 0xffe14d, 24);
-    if (k[0] === 'S') { sfx.special(); f.mt = M.min(300, f.mt + 2); }
+    if (k[0] === 'S') { sfx.special(); gain(f, 2); }
     else if (k !== 'X' && k !== 'R') sfx.whiff();
     return true;
   }
@@ -668,7 +701,8 @@ class Fight extends Phaser.Scene {
   readHuman(f) {
     const P = f.p ? 'P2_' : 'P1_';
     const dir = f.pcap ? f.pdir : dirOf(f);
-    if (edge[P + '4']) { if (QCB(f) && this.cmd(f, 'R')) { f.pend = []; f.pcap = 0; } else this.toggleAnima(f); }
+    // B4 prende/apaga el Stand; con Stand activo, ↓↙← + B4 es la Ráfaga (si falla, el Stand no se apaga)
+    if (edge[P + '4']) { if (!f.an || !QCB(f)) this.toggleAnima(f); else if (this.cmd(f, 'R')) { f.pend = []; f.pcap = 0; } }
     if (edge[P + '5']) f.pend.push('L', 'M', 'H');
     if (edge[P + '6']) this.cmd(f, 'parry');
     for (const [b, k] of [['1', 'L'], ['2', 'M'], ['3', 'H']]) if (edge[P + b]) f.pend.push(k);
@@ -704,23 +738,23 @@ class Fight extends Phaser.Scene {
   // CPU: decide cada pocos frames; usa los mismos comandos que un jugador.
   readCPU(f, o) {
     const i = f.inp;
-    if (f.mv && f.mv.con && f.ch > 0 && f.mv.t >= f.mv.d.s + f.mv.d.a - 1) {
+    if (f.mv?.con && f.ch > 0 && f.mv.t >= f.mv.d.s + f.mv.d.a - 1) {
       const nx = { L: 'M', M: 'H', cL: 'cM', cM: 'cH', H: 'S1' }[f.mv.k];
       if (nx) { f.ch--; this.cmd(f, nx); }
     }
     if (--f.ait > 0) return;
     i.l = i.r = i.u = i.d = 0;
     const dx = o.x - f.x, ds = M.abs(dx), fw = dx > 0 ? 'r' : 'l', bk = dx > 0 ? 'l' : 'r', R = M.random(), id = f.c.id;
-    f.ait = 5 + ((M.random() * 9) | 0);
+    f.ait = 5 + ((M.random() * 9) | 0) + this.lv;
     if (!f.an && f.ag > 70 && R < 0.12 && !f.mv) { this.toggleAnima(f); return; }
     if (f.an && f.ag < 30 && !f.mv) { this.toggleAnima(f); return; }
     const thr = this.pr.some((p) => p.o !== f && M.sign(f.x - p.x) === M.sign(p.vx) && M.abs(p.x - f.x) < 190);
-    if (((o.mv && ds < 140) || thr) && R < 0.12) { this.cmd(f, 'parry'); return; }
+    if (((o.mv && ds < 140) || thr) && R < 0.12 - this.lv * 0.006) { this.cmd(f, 'parry'); return; }
     if ((o.mv && ds < 180) || thr) {
-      if (R < 0.6) { i[bk] = 1; if (o.mv && o.mv.d.low && R < 0.45) i.d = 1; f.ait = 14; return; }
+      if (R < 0.6 - this.lv * 0.03) { i[bk] = 1; if (o.mv?.d.low && R < 0.45) i.d = 1; f.ait = 14; return; }
       if (thr && R < 0.75) { i.u = 1; i[fw] = 1; return; }
     }
-    if (stocks(f) >= 1 && R < 0.3) {
+    if (stocks(f) >= 1 && R < 0.3 - this.lv * 0.015) {
       if (f.an && !f.away && ds < 200 && R < 0.15) { this.cmd(f, 'R'); return; }
       if (id === 'massu' || id === 'melo' || ds < 380) { this.cmd(f, 'X'); return; }
     }
@@ -748,11 +782,11 @@ class Fight extends Phaser.Scene {
 
   hit(att, def, m, srcX, px, py) {
     if (def.st === 'ko' || def.st === 'down' || this.ph !== 'fight') return false;
-    if (def.mv && def.mv.d.inv && def.mv.t < def.mv.d.inv) return false;
-    if (def.mv && def.mv.d.parry && def.mv.t < def.mv.d.a) {
+    if (def.mv?.d.inv && def.mv.t < def.mv.d.inv) return false;
+    if (def.mv?.d.parry && def.mv.t < def.mv.d.a) {
       // ¡PARRY!: sin daño; si fue un golpe directo, el atacante queda aturdido y el que desvió queda libre
-      def.mv = null; def.mt = M.min(300, def.mt + 12);
-      if (att.mv && att.mv.d === m) { att.mv = null; att.sn = 26; att.st = 'hit'; att.vx = 0; }
+      def.mv = null; gain(def, 12);
+      if (att.mv?.d === m) { att.mv = null; att.sn = 26; att.st = 'hit'; att.vx = 0; }
       this.hs = 12;
       this.spark(px, py, 0xffffff);
       ftxt(this, def.x, def.y - 170, '¡PARRY!', 0xffffff, 32);
@@ -769,8 +803,8 @@ class Fight extends Phaser.Scene {
       def.sn = m.bs || m.hs - 4; def.st = 'block'; def.vx = dir * m.k * 0.7; def.cr = crouch;
       // con Ánima activa el daño residual lo absorbe el espíritu
       if (def.an) def.ag -= m.d * 0.9; else if (m.sp) def.hp -= m.d * 0.2 * mult;
-      def.mt = M.min(300, def.mt + 4);
-      att.mt = M.min(300, att.mt + 2);
+      gain(def, 4);
+      gain(att, 2);
       this.hs = 4; sfx.block();
       this.spark(px, py, 0x9fd8ff);
       this.checkCrash(def);
@@ -783,8 +817,8 @@ class Fight extends Phaser.Scene {
     def.kd = m.kd || !def.gr || m.k >= 9;
     if (def.kd) { def.vy = -7; def.gr = false; }
     att.combo++;
-    att.mt = M.min(300, att.mt + dmg * 0.85);
-    def.mt = M.min(300, def.mt + dmg * 0.6);
+    gain(att, dmg * 0.85);
+    gain(def, dmg * 0.6);
     this.hs = (5 + m.d / 3) | 0;
     m.d >= 9 ? sfx.heavy() : sfx.hit();
     this.spark(px, py, 0xffffff);
@@ -916,12 +950,12 @@ class Fight extends Phaser.Scene {
         this.spark((p.x + q.x) / 2, p.y, 0xffe14d);
       }
     }
-    this.pr = this.pr.filter((p) => p.t > 0 || (p.img && p.img.destroy(), false));
+    this.pr = this.pr.filter((p) => p.t > 0 || (p.img?.destroy(), false));
   }
 
   pushApart() {
     const [a, b] = this.f;
-    if ((a.mv && a.mv.d.dodge) || (b.mv && b.mv.d.dodge)) return;
+    if (a.mv?.d.dodge || b.mv?.d.dodge) return;
     const dx = b.x - a.x;
     if (M.abs(dx) < 50 && M.abs(a.y - b.y) < 100 && a.st !== 'ko' && b.st !== 'ko') {
       const push = (50 - M.abs(dx)) / 2, s = dx >= 0 ? 1 : -1;
@@ -935,15 +969,15 @@ class Fight extends Phaser.Scene {
     if (this.ph === 'end') { poll(); this.endInput(); return; }
     if (this.ship) this.ship--;
     // Durante congelamientos no se lee input: los toques quedan en buffer para después.
-    const humans = this.d.mode === 2 ? [a, b] : [a];
-    for (const f of humans) this.trackDir(f);
+    const md = this.d.mode; // 0 demo (CPU vs CPU) · 1 vs CPU · 2 versus
+    for (const f of this.f.slice(0, md)) this.trackDir(f);
     if (this.fz > 0) { this.fz--; return; }
     if (this.hs > 0) { this.hs--; return; }
     poll();
     this.n++;
     if (this.n % 9 === 0) music(this.n / 9);
-    this.readHuman(a);
-    if (this.d.mode === 1) this.readCPU(b, a); else this.readHuman(b);
+    md ? this.readHuman(a) : this.readCPU(a, b);
+    md > 1 ? this.readHuman(b) : this.readCPU(b, a);
     if (this.ph === 'intro' && --this.pt <= 0) this.ph = 'fight';
     this.stepFighter(a, b);
     this.stepFighter(b, a);
@@ -952,7 +986,7 @@ class Fight extends Phaser.Scene {
     this.sparks = this.sparks.filter((s) => ++s.t < 14);
     if (this.ph === 'fight') {
       this.stepBanana();
-      if (a.hp <= 0 || b.hp <= 0) this.roundOver();
+      if (a.hp <= 0 || b.hp <= 0 || --this.tm < 1) this.roundOver();
     } else if (this.ph === 'ko' && --this.pt <= 0) this.afterKO();
   }
 
@@ -975,7 +1009,7 @@ class Fight extends Phaser.Scene {
     else if (--n.t <= 0) { this.ban = null; this.banT = 1200; return; }
     for (const f of this.f) {
       if (f.st === 'down' || (f.st === 'hit' && f.sn > 0) || M.abs(f.x - n.x) > 40 || n.y < f.y - 130) continue;
-      f.mt = M.min(300, f.mt + 50); f.ag = 100;
+      gain(f, 50); f.ag = 100;
       if (f.ck) { f.ck = 0; f.st = 'idle'; }
       ftxt(this, n.x, n.y - 140, '¡PLÁTANO POWER!', 0xffe14d, 26);
       tone(880, 0.12, 'square', 0.07); tone(1320, 0.25, 'square', 0.06, 1760);
@@ -995,13 +1029,15 @@ class Fight extends Phaser.Scene {
     for (const f of this.f) {
       if (f.hp <= 0) { f.hp = 0; f.st = 'ko'; f.mv = null; f.an = false; f.vy = -9; f.gr = false; f.vx = (f === a ? -1 : 1) * 5; }
     }
-    this.announce('K.O.', 96, 1400);
+    // Sin K.O. al acabarse el tiempo: gana quien tiene más % de vida (rw, arriba)
+    this.announce(this.tm > 0 ? 'K.O.' : '¡TIEMPO!', 96, 1400);
+    this.hs = 30; // cuadro congelado en el golpe final
     sfx.ko();
     this.cameras.main.shake(300, 0.012);
   }
 
   afterKO() {
-    if (this.wins[0] >= 2 || this.wins[1] >= 2) this.matchOver();
+    if (this.wins[0] >= 2 || this.wins[1] >= 2) this.d.mode ? this.matchOver() : this.scene.start('T'); // la demo vuelve al título
     else this.newRound();
   }
 
@@ -1010,27 +1046,27 @@ class Fight extends Phaser.Scene {
     const w = this.wins[0] >= 2 ? 0 : 1, wf = this.f[w], d = this.d;
     this.add.rectangle(W / 2, H / 2, W, H, 0x000000, 0.6).sd(28);
     const col = w ? '#ff6ec7' : '#e1ff00';
-    txt(this, W / 2, 190, (d.mode === 1 && w ? 'CPU: ' : '') + wf.c.n + ' GANA', 44, col, '#000').sd(29).sa(-4);
-    txt(this, W / 2, 270, '"' + wf.c.win + '"', 22, '#ffffff').sd(29).setWordWrapWidth(680);
+    txt(this, W / 2, 190, (d.mode > 1 ? 'P' + (w + 1) + ': ' : w ? 'CPU: ' : '') + wf.c.n + ' GANA', 44, col).sd(29).sa(-4);
+    txt(this, W / 2, 270, '"' + wf.c.win + '"', 22).sd(29).setWordWrapWidth(680);
     let msg;
-    if (d.mode === 2) { msg = 'START: REVANCHA · 2: ELEGIR PERSONAJES'; this.next = 'rematch'; }
+    if (d.mode === 2) { msg = 'START: REVANCHA · B2: ELEGIR PERSONAJES'; this.next = 'rematch'; }
     else if (w === 0 && d.li + 1 < d.ladder.length) { msg = 'START: SIGUIENTE RIVAL → ' + CH[d.ladder[d.li + 1]].n; this.next = 'ladder'; }
     else if (w === 0) {
       txt(this, W / 2, 360, '¡CAMPEÓN DE CHILE!', 50, '#ffe14d', '#7a0f3a').sd(29).sa(-6);
       msg = 'START: VOLVER AL TÍTULO';
       this.next = 'title';
-    } else { msg = 'START: CONTINUAR · 2: TÍTULO'; this.next = 'rematch'; }
+    } else { msg = 'START: CONTINUAR · B2: TÍTULO'; this.next = 'rematch'; }
     txt(this, W / 2, 470, msg, 18, '#ffe14d').sd(29);
-    this.endWait = 40;
+    this.endWait = 90; // 1,5 s: machacar botones no se salta la frase del ganador
   }
 
   endInput() {
     if (this.endWait > 0) { this.endWait--; return; }
     const d = this.d;
-    if (any('START1', 'START2', 'P1_1')) {
+    if (any('START1', 'START2', 'P1_1', 'P2_1')) {
       sfx.ok();
       if (this.next === 'rematch') this.scene.restart(d);
-      else if (this.next === 'ladder') this.scene.restart(Object.assign({}, d, { li: d.li + 1, b: d.ladder[d.li + 1] }));
+      else if (this.next === 'ladder') this.scene.restart({ ...d, li: d.li + 1, b: d.ladder[d.li + 1] });
       else this.scene.start('T');
     } else if (any('P1_2', 'P2_2')) {
       sfx.sel();
@@ -1039,6 +1075,11 @@ class Fight extends Phaser.Scene {
   }
 
   update(_, dt) {
+    const m = this.d.mode, t = Date.now() - LT;
+    // Demo: cualquier tecla vuelve al título. Partida: 60 s sin input también (se fueron los jugadores).
+    if (m ? t > 6e4 : t < 2e4) return this.scene.start('T');
+    // 1P: START2 = ¡nuevo retador! Se limpia el toque para que no confirme al P2 en la selección.
+    if (m === 1 && tap.START2) { tap.START2 = false; return this.scene.start('S', { mode: 2, a: this.d.a, ch: 1 }); }
     this.acc += M.min(dt, 100);
     while (this.acc >= 1000 / 60) { this.acc -= 1000 / 60; this.step(); }
     this.draw();
@@ -1096,11 +1137,15 @@ class Fight extends Phaser.Scene {
     const h = this.hud;
     h.clear();
     const bw = 320;
+    this.tT.setText('' + M.ceil(this.tm / 60)); // como string: setText con un número re-dibuja el texto cada cuadro
     this.f.forEach((f, i) => {
       const o = this.f[1 - i];
       const x = i ? W - 20 - bw : 20, pct = M.max(0, f.hp / f.c.hp);
       h.fs(0x000000, 0.7); h.fr(x - 3, 17, bw + 6, 26);
       h.fs(0x7a0f1a); h.fr(x, 20, bw, 20);
+      // estela blanca del daño reciente, que se vacía de a poco
+      f.hd = M.max(pct, f.hd - 0.004);
+      h.fs(0xffffff); h.fr(i ? x + bw * (1 - f.hd) : x, 20, bw * f.hd, 20);
       h.fs(pct > 0.3 ? 0xffd23a : 0xff3a3a);
       h.fr(i ? x + bw * (1 - pct) : x, 20, bw * pct, 20);
       const ap = f.ag / 100, aw = 160;
@@ -1108,7 +1153,7 @@ class Fight extends Phaser.Scene {
       h.fs(0x000000, 0.7); h.fr(ax - 2, 44, aw + 4, 8);
       h.fs(f.ck ? 0xff4fa3 : f.an ? f.c.ac : 0x3f6a8a);
       h.fr(i ? ax + aw * (1 - ap) : ax, 45, aw * ap, 6);
-      this.anT[i].setText(f.ck ? 'STAND QUEBRADO' : f.an ? 'STAND: ' + f.c.an + (f.away ? ' (LEJOS: DAÑO x2)' : '') : 'STAND (4)').setColor(f.an ? hex(f.c.ac) : '#8899aa');
+      this.anT[i].setText(f.ck ? 'STAND QUEBRADO' : f.an ? 'STAND: ' + f.c.an + (f.away ? ' (LEJOS: DAÑO x2)' : '') : 'B4: STAND').setColor(f.an ? hex(f.c.ac) : '#8899aa');
       for (let k = 0; k < 2; k++) {
         h.fs(k < this.wins[i] ? 0xffe14d : 0x333333);
         h.fc(i ? W - 330 + k * 22 : 330 - k * 22, 62, 7);
@@ -1117,7 +1162,8 @@ class Fight extends Phaser.Scene {
       h.fs(0x000000, 0.7); h.fr(mx - 2, 550, 214, 12);
       h.fs(lv ? (this.n % 20 < 10 ? 0xff4fa3 : 0xffe14d) : 0x3fa9ff);
       h.fr(i ? mx + 210 * (1 - (lv >= 3 ? 1 : part)) : mx, 552, 210 * (lv >= 3 ? 1 : part), 8);
-      this.superT[i].setText('SÚPER  NIVEL ' + lv + (lv ? '  ¡LISTO!' : ''));
+      // con súper disponible se muestra el comando, con las flechas hacia donde mira el luchador
+      this.superT[i].setText(lv ? '¡SÚPER ' + lv + '! ' + (f.fa > 0 ? QF : QB) + ' + 2 GOLPES' : 'SÚPER');
       if (f.combo < 2 || o.sn <= 0) this.comboT[i].sl(M.max(0, this.comboT[i].alpha - 0.03));
     });
   }
