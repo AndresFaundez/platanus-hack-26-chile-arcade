@@ -12,10 +12,9 @@ const W = 800, H = 600, FL = 520; // FL = altura del suelo
 const FONT = 'Arial Black, Impact, sans-serif';
 // Colores de texto más repetidos (como string el minificador no los junta; los números sí los inlinea)
 const YS = '#ffe14d', RD = '#7a0f3a';
-// Estados del luchador, poses, fases de la pelea y pantalla siguiente: números con nombre
-// (los minificadores inlinean las constantes numéricas; como strings costaban ~350 B más)
-const IDLE = 1, WALK = 2, JUMP = 3, CROUCH = 4, BLOCK = 5, HIT = 6, DOWN = 7, KO = 8, PRE = 9, ATK = 10, RECOV = 11, CMD = 12,
-  INTRO = 13, FIGHT = 14, END = 15, REMATCH = 16, LADDER = 17, TITLE = 18;
+// Estados del luchador, poses, fases de la pelea y pantalla siguiente van como números (el minificador del sitio
+// no inlinea constantes con nombre): 1 idle, 2 walk, 3 jump, 4 crouch, 5 block, 6 hit, 7 down, 8 ko, 9 pre, 10 atk,
+// 11 rec, 12 cmd (el Stand ataca) · fases: 13 intro, 14 fight, 8 ko, 15 end · siguiente: 16 revancha, 17 escalera, 18 título.
 
 // Atajos: el minificador no acorta nombres de métodos ni propiedades, así que los más repetidos
 // tienen alias cortos. Graphics: fs=fillStyle fr=fillRect fc=fillCircle ft=fillTriangle ls=lineStyle
@@ -293,7 +292,7 @@ const REP = {
 // Alfabeto: ASCII imprimible (32-126) sin " ' / \ — así no hay que escapar nada ni aparece "//".
 // d91() vuelve a armar los bytes del WebP y devuelve el data URI.
 // @SPRITES-START
-const SPR = {"prat":{"s":"7=4V$,3 RgiSL!326sY1n#  Xi):-PR6S[1qfUC}^foz}#!S,P-Y.J~B?NCHmV g}_;T>FDu+><Yg4!Tgs%2%twq;=+0{}YC-^XC.7r.sbwQIo0!U(OvNpoBtZVlbqbRQL|2ke~#mb*`xCZjkDgPv0=i4w$]H_H.MP63!M+&o9KJVd:[c6M.J(Mt%e^iTZ? b2ma:hjxLFPAQEHJ8-kO4m5Zs{vZLgu}k#F{K&<fT52gM@+?IX gA$?PTU]68$9M,$5~;<~N3M`|r7g<Gr)a*r3+xh-x4K$f*d6MS<>kWT$k7S,Jub#:s,oHSalrg`MM4~fAr,mHxAL!-;qzSzrCZbg513i%|q!o]jT,Pszfed)q~rv?daBV9MLjUpxN%0&5Tron>^;Iaf@QW9iebYEgRdoJ{;#oQ=Xr6xBx0x}?$8HqC[p|2^z@J:DsN|-{QBFpmf^0!2lj9;ElIK4{)fLQ|[]55CCc?y<^nm[b)~T#Yz8O6Gd@iEYL$E0C-d#E?_l7[z5aK$:N4}C])aOw7b<k@pkbQw?HWeBhy0vedB T 3FFDjoXjc|OnDdeT7(3=3+TN& 3@c^eq VI&CIIVI$3La2b&<5NLySiqp<k(SSA5N,G9XGCjWQ]0CAl$:CZw>a8VA;{I,<`TcS@cw>l|7P])a3Z<p}xAxebVc<O+I<IiR5tQzLP0oOV[s3A) (a-?r2U)_t,gkDI6+q^35j8I`CCjgH4xiBt~obmI}g#%`qr7@EMcN&M;m p{|&Kq}&4d1[4%[,Tk}|}e1&wALGOne-&Us^p$fjEwJm9CTT6U+@Jn!xH&AyWB+O15X~>}-wvpI[&mhtjg])>I5~KnEgDovpg8)s--D0oneF(:4b?H`P|6E6fHnu_2|q#!s%Qr=mE8!xNnV;?YX@ga{1.XLdrBgz@y7,bzM,G;kqi[v9^(:LBP~L`pMC2IfM`p9`o,I:bA6jJ* `,woY)2LDI)}w]lvg~>u75}[jcn_e0?sl.X6+FV}h}FvK#6X]S)kgP WrBNv9DR{zUQ A8CyO[F]c JUVP;KK46a+%70glLnM obJ+q<?My,YRI*^b`t`iiW7WVE].VvPg2w`<GWPtb2mzJ@#8!HPm#MI1-uE%m.EQkdLF`4o^AFK`DCYy>dP4eWw9j9KQ`xS08zP;zX[VXQdYHY-K]zXqGF;yCdzn^0!Nj;p>yGm3U{]^=@_kvXXxmQajEQcvH=)3d$T5lu>b.R7DRCikL6b0R M`ewDU;Skp$(0!e{oIu$2$)5,zBJ}%)QW}uhlJ]5Mt]1hcG46L`kqI6sD;Tu0]SC:hzet1?&`#7jZg5JL>kH[474XEz2Z12v_w^^|j67=vnEL@hKuoYu<4Z[BmB6!ErwMP) A)cuN+P=.M6ynUjRJl2>x<1jj*z<8Fh~x2Z:GH}$pwL1mRM:X!>N3un;eLld_n5e#u(Un^n60 +RWX@~4|AQ?dklpiJ_E%&g_<ptGO9=^K8t!6$x;&N[9B7W]E<XJYJyhq+~P3L1m5Y}W.n&:MvtWV{A3O]CP#R;`>qY^h<Pl4# h1x`p(?o=``@7@A;-@gtl7dQPfQd%{U*7d$|X{HUvv519$AYAddRl[fE9#YR3b%[pmQN7_nv9BL7Meg Z#]-AI(sV3Rv.E0!CO+to?Bkrij_Ha2]8375![fGx+AC<$PySyV0aO~C:+:LA|DsWj,SWC8fZFpNce.b$?%ZNN(Z;]&6 $_UvUmmD$%b>i5_BZl8%<Aq8srLk<-kYP);lwH;kQdI]<z0sX|0gghnxP51m9[bTZCsf)oNsC$Eu[!EMGSdL~o|R?6#P<ri{h2VZ*!5QXMx_:m!Tlevl[?BAy|$DHBR[6$0,QcsOyg GOn`Vnv&Q3gHuh*-z>GxU?u1,&l@LmBnX0FZ!*q@sG]c=YxtI`XQW]=)_nraHhsBHn:%7){`6-~j>&oVevmp_Y`ovag($GF] X)==@hF)j%b7=}-&;O1giy*1j^e8~ExK|I%,>:KkBeV-*g%=(;*Ave^gn.0Wx3mr*bO8pak1J(;n3F%]*ri9&U@7+y(29<]LAvT8<ns,%Wl[O J$cFx7t$!*JU?vSpyRse~t^=ynqv& Kj+~w>;K0qCV#<HZu@HGyC>!o[1E 5T,<RUJQZF:DR?+lNnb!`>!!!6sI#Q^&Z@E*d)=;Q_2IV9iQ^2w?@]0O&22kN?79mfACt4(!)UI%F$?8*;3^Cj#BVP^XDl-M:N4v.c-VlU=vF>%PG*+.`o8v5bnT~DhMj.!]rb^$A)ls`ENJbhg1nSC74KO>EYAhf~*N!j%JC{4<A(+@2WP2b@h7,Jnw$0P!h33!GMxF(0TTE!fvs&2tcB@QTrgJ2 5&D-R>^;wP*+d#jghdQlg@lPqKK2XlkEzyX14IUlgdX,XV!|EGyVfse-tXkut8{tFtf{4.*@p-,<> 5aQzA*4AsS9Bo D>BGW~A<E^hsXP~4gP4Wsa81_NI>z1(?p^tuFICaJqFmY!lb lF2F_#;3[b*0G&e<3tz,?!5ep.R{~T6[u(y_z98t6O^UJ|8,Mu u+T  ","w":47,"h":42,"x":20,"a":"7=4VFM% RgiSL!326sB$j   2@?[V9X0m$i<b.~@N)7.RP6ERXaOtZn@8%8@EhP:9h^ZOQPcq.M=:dV}8t~qg,sXUIt]&SelArv}7PtoHQirOh}}N}?>lzb6R}X=%X3!,gje.t=m|G%Rw{(gGusm[I2%2iE) D.lexN@_!)plki )<:KDV8ww36.~aV;^l0}3%I(9EE2TR!f^(-ivCq4sl>}3G;|kA.%O4p8IUyGg7C&vrkrJ-0pThbm$X fJO(J*d@fu+cI9pGk;E|5W&jHTAXj^ dYtbULL3Y 1!nFari`?|9Vw&W2O<FnJL%{_,s2A!g{gbAk}L%L1]:V-;!w1ON_Z[~#pYt7*gy!~NmkXXP%}2ne3pwyo;[Q]kH:b#WPtogc{w=[eFekb,)a[Xx@cM4n9dwga93IYcP?Oj-iT6?S!xzVJkGIfU;#x-XO=y;|kE`01CkN 5I1_=WMy$yf`E#H,$-FbRs^M] GMx-bFVi$[&jj.80F02:5`&(675,q;G~p}k*l<p{m777db4WPV*`.1qe!lH[CfZ(6:YWIKU OFUCt5eq-TKoV.[lgtk+eq<N&D.|#^==6D5?8vePKFcwr~+R%e<lzhGPc,qsXU>?d<na-+CtXX^pBg]T7CH!5EVkko^Sk O<G 9iomVI,lL-ZO_>^vj:R75zZ!> zRq4Du3mMfNKzuLO1-?tts<P%Vo|pAM*U$","aw":35,"ah":46,"ax":12,"an":2},"vidal":{"s":"7=4VTC5 RgiSL!326sY16$  Xi<:-P26O[1qq<3[+{m~P!F#d[Ks$b^;h%k`X8es]eLllOyVSZH>jySlswOYMR#s_HYr[nG8=d1qQh1&UWB`FCSsS1wpc8RpxmH8#W#Tv#osXC,#O*:$@~n#S9vS%*%65&{GL1T+nPI)0Guxil7Gnv&1nfS<WI>d1qf*NKVX3>L)m@A@-Xb7G1,avOm^E)L-*89[s9wZ{lu!l9mp7(MbQk50Mu[#)j]SZ<VXP~0yAv)Lw}8~I*t}# AxCera(s*TG}E+MZ38r3&sqIphPhwxZwM)[ifVv0^D_yWeBC~OWi#)1mNp0cIioaT{lSd|!~cddDjFQE>5-.;b&z6KO`QAP&5pr{&5lSAr%ZH|=B[ORFFNn{Fk s-G?X7wp9}.r5xK8;&y~j>3z[pb5cfOp;!LK]zfArA]-Jz$TIGv>N~{aPv{C9Z;rc,oV&bQOguq?wXaF@=zdz?#POr0*uX7x)qYf|km]v^A6Iv<3MXbLKKv6?%AlZ(05{1T&SORI_el.,>%CUIY=@ZeZWDJ`hz66XB#Q[Yv(ZHn}.g#DdWP4o}e.49kitu[tC|Z{M%:M1Co6Yp*!de550Z~ dd^Yu<Y*`moF+#I!1]fy(V4*tIuIp;kV!K:IG71ILSBO5L<*M?50.X6kGWE}`{@cv*)cDA~_z:&zCHe`esGS2Q@}X]+Qwu%1X2.UT+DL%$+;Z>N*Hz`MYmd1~sW#uq@m5v|QO)&>N$p)iWHa$k{Q]=&:SAr2h(qura%gN@`^tw&.?Dv9UBQ(66^wvoaZkf?n2t|e>$?t(lC8lWkEu1<<u]as0} !QLmrq-)(q_?pI4E@^K=J`M4PL8^Yit[|vr<?#Rn_A`|yk0`Ek?:<NWm*pz<A{&B JM.Po-#b=be4;!`uD4xOKRsQWY0O:>;%AXO#quyMdQUzwk&!q77j5d70pUNqR~G##(]`qlwY!SxYqCh>Wq9)4GCGmmqH+ pU+mfW%-[p<1sQo}~*^iPKDo[{WeaWlL 6r?eG~)*4G8q6e7#Fmrr[AY<hSm[Hn>eKzh~79P+?{s5H(cbuR*[rS0SS%#$J2g3yt^~s0 ruin%z#m3!AzCA&y{w${sgaKO_$}5$tz?DFrkxR0^REAoiX`dEr3.oaK!P3SZ7Qm:;6;!;Q7_=)&&Zzkq7~:|FtW:KVLBKVT%CC5]2ji.I:?HDGS,3qI$-9S>j3q*O|#mY+G*G1|VJ5qQGD4,gycoOesn$b^FK7w[@92AVY vU_B1ul|ufy0!FB@S9V5Yhwr.lVwgr[:O3HB5wp+:0s_]!zdWM:|y][Z|Ki.xdqxy4K?`^tlqYLM|V=Uis^wJ7!A)N5>Fh(J(b5l(1rY|!Gnx,X!S|k#e_odb,9EWrSu?Kr+5}*9Iq<h~pwNe&Edv*5Qj48%Ls7&K0q8+mK]~be]I(J6x2!kgem|F8g_OI>mX$,6eY?mY GykGFyRcfYZ%n9#_u&6(nRn!`BLCL;q G}e=6c4H).Blgf{->Mh,<M3OaQW~,]Og+xqnET2^C]Ibs~3s]M72Aup=V_OVMMu;?-<i-V^&Eyw2qqmYLYwQW=2P,h`TA]*#w#DkIed0kOEI]jbfuJnUH<2]6PTRiFTA;G`]IF]]IZ%dm5pOccfUT8$&eo4)G*l]je.ruQd(Te%v=$R061q{CqG|EZq%8c;+<n H`^FBV+JzNX+9m}.bIy@qGOX:IVzSUK~P6h`$*NbxK;q:b[q>(WaXc@d]IcZ*.Ws!!^h8{3u=w[:s.Y!NLMd~-Zd$l1E%z5Uu&@k+4Y{B^ A~kMX!|e!iMu.[faE^Ry.F=7<(5>w)b5UtF9QeM,jRe`ioS~4h;)3SloKSelLST5UJSK|>mh.CCob*{hPAra<Q`^#z#u3WyH* e]FVKBVJKX>c.Uyk5t0ANj-nPo$F%EB!fYX^q<b+)sH<h[Bwz^TO(%p-b3tbMdhCbi*!{Bga,VDO|@=Z_P)b.!V(r38nhtw7R4#~X+h>}9pK3VK4+G(b]oOiQ`e9qZdO8Tey5{<@Yy.!&nJf0OAo9C$j7$PP%QNwFR`kfq#5.3ztnj]vw_]<Q+`+-AA .Gx.(=pdu!S%v=<Y%XPPI]+:7^[|V-;0{2[SZyL1s-<}#m^Q*!eTEcAZq#FrD}%[K)&P{zLU:uFP8C76;SE=VAvogFK?7LakfSwe-DwW:|25j}%.3ymf0})}e*B<6*lC$@d!`|*DhKs[`v[]_:384-$Hra02PE0V#~n<[+[jwduGv7;,v>ogC8rlrZboh?oLVEr3!7 Q8-r%P7a_vrk_g5bswZ@x38^Z.PR1L^~~.<HoJ%WO@BKCR~JKsU5&7?ug>(1E!AK:=~K&xYAXh6w.gQA:`Aq< M#VTG>x%1N]uVL,uY&O?i4[I,([=`AA~34)Py^<!F-[ SXfxKlP]*U)1^1q+PS~Nf N]Hv!7t.oc4+.Cor6alY4~z|uAx%9s)pzXH9W7yYxpHE.Q+PwUNqc4?.Q9O},5#`uXPFq  @mbGxM#8<s6xdq!7 Q$`na.;|^.iTa(Ks6;DW2@u%SSuA 5}*dQc6[K;bUBh(!A:}mtz1=#9D3?U$gZ[~U0OWB&m^NNKvI:dsy_eIa(k_q6j0tv*mUgNJFf1 ;*.?.<1@=1!:5Vq,^MQE=Vscuvx1q6d7+_H20@W*>vV9F^K[g<V,)1-+u@JRyv@Kmr)F^RuM8adTk-lus^cuX9+[ifH6v~~n+wO.5ykf&Mg@,T@-dxwd4)!)L,pPf 9#nMSglP=,S;myLQP)`e38Q7%u}]a(Be?rEO_gu=oGz[f-luD2 (9<*`&hMVnW[|W*G-=+hQn?[fAm%u82ZFK~`Y1n@MQ#,f}u.V_mnJ.&E:YGRTJXpK>#_G+gMUQGSn99, [A=}=5M9q&~MZ  ","w":63,"h":42,"x":33,"a":"7=4Va`& RgiSL!326sY1}   A^_9.Pf5v(>d1qW({44&k<JqFMEZrw&R:c+)b#m1TR9TdS=dH[~O&n3[7#8:;-[mRRp3&,{}[gM9vOxx(-g}RtZ[`|p{6.Iq6Y<U5p7c+*G$TH,X,@,;(3pHmH>G9*>@H1NC}1nBf`5o,d`ZMY*>$Ce2K6]W8y`fGIy*V0Me#BzGW^9+@$|2}GAtc<u<VyFNm.&j0>p(0CNg(-zHcc=@_p=.=d DB~).VI*gF>R=-%Lo8exdLpZvcwt3z)&fk`=k9HnL#RThP[tP<O#g:@4r>7PbqjawC!0gkao2)d)RS;TzTDvFRk1vYT~7ZdgRZfeEtE%X@RP3hWr:U>8rO2t4@hOIZWo{qQ66c)}~R=>HOMYVm|Up9g4Fl< Wx!mZ D0p}LYVQ=CPf:WIs]aPQ ~H f$;O5$9!xJ}Qx6=&2.JYb*c`mN_|%(#nFw%Jk7I(u(}5Y{k-J9<m ({jezfG=SI36GV13uFmk5,sbY.rm0@S-7b$NOpMDS*4ZCV@<SI:S?3CVl.DW~WzqIyRju<|](:gpB>]8l@SI7yK>^-OwIy-=!zb,E7;F#%3I^Vu=A.fH4%GQBIk.RSJ#dojU3xOfTg|*=xJnF$!Y1Lxyh?)u=.JUL5 ltNW,RrUL !vd0!GuC*|&hpe<{.pV@>KAMKQ&e!Yo9n?l5B]q;f~p2q]D$[I|7k[OOhd<>y.>=@^dinKO?N^.ha4Y:RIV4Lglk^z4cp%j`r$lF$!YSg:R|=q(KV#GGf|t*q:Z0E;n>!A_ZYTcBn}uKH_0T48gmlUI56;y%@`0~4I:^>1* L+qGIPcKO1GGf7&b^Ok~f}tPrj;4%wL!Y35c)d+t4ZGglI&T4cpmk(0z4j{@[cMnze<>K4Gt| n}k^! ","aw":55,"ah":46,"ax":27,"an":2},"melo":{"s":"7=4V@?3 RgiSL!326sCSq#  )R&:-PM5S[^+KVC}^fFxB-:4<[Uoo5l1YEu^Dm&@*V{4q-)Q{IW(UlnoCy0n`E7&d<4NA|a(LG#X3lhDqg8hKKb)xE{},P>`(3MV&qQ;h1zNF*7g`{1kY_ok)2<Fai0^F[n;q#n;K~sf3Rl4n0)^9)F:JVF6_kv&y(TNW|Q$i}#{8(_.egoa2v-}^Bn|;De$woe|8>k<3s}v2$W;.t}9T_.^Yx.07=QWtQQ]fDo1v]YxtUy@-^{6s]%v.HiDA.s1aj~U%1p7iUKWt1-rrm2^+NIV+f!5sUU(ecPX08pD|2b%FxGDJQP0lN6r+y#+p_:A~Fk1m &_1LfZ.izG}Ku!7F,GG=5sh_wg0B9ZVVdKb<b.4|:Sa8LQw9yB]`$Pv<2uTHG2OUsiOc$p:Y_$e<e<g}(&L)q0BLx^P&oW|GOdpDW*r#O,uw%iy(9:%#S}f9-iZ!!s- S#s]ttUh[:DJUIcas$FvSDp$JV&@`?Y~K60(Hw_2&s zefPM*&<,QJ2Ib y4_9Mr8f(+&Fj3{!(3l$QWKWt1JW2s:whNsStOWK7<+7nPoj:P=P?bgf)a3P=l=(Rk #p:Vr.L}a2I|$-a?C Ll<_i,Uy*^g=^u1_!j*Je?Fk`+tZ-?:EQz$}>a23Pi(DN+Bt!}9%#&Zbnm MVDuHSQ=7^>E*TXT,rIe-*m<qRP6:o3pjDMV=M@$MGP7%<:`&*Uvc@pL]bN+.C0BL1V|1?#X6g`UN_081oRb<`DG6xQ!1z:9X&H!L-%Xw$~rhU0j(bgf`Ob]p-q`zss2Skn|hUL2A88Y7pv.~vLB[!<Io_nj xQVwFB!:J^VQ90m:?VE6.kjpGaUGB2m<0!bviE`I+uX!KtwZ?![)dL$CdXu7lS+S?(P;c:Or?haC_GT6$a3%%Y>#P|[@+DxR*kQkU)2R%~qW|`*?OG<GmAUe3O;$Pv<<$`U)UN0BgF|%$B! 2d a3MP(fBlC~<gs 4KDIv]L[iD]H&e:CoNX-4mFKm<KQP?E9Mu0!@n^QCV0?RA79*CN2xg@_{5SF+dOlfK~Af;A1CQY,(Z,XH5Nq4WZ*Le[]Pe^<X8RHQ?cO,t .~W0,[LtD:U2pU-#aA*zOzaCp$Z*0B J!MMJ<D73$4b3H) 1, !^|}3c]Z`JVA-~0Hji(KDg=y,uRJ6qo?,9jMeDwUC$XqXX8g?f<6BBvMPW9}H&+7$%#pE:N5JnEeN%_(SJ-@]],gk# D=HJVkExt@Dq%i:VifYm)ZboHsbbiu5%_&*&FrU-=(a<Qd,;N?WG}u*Vwg[{4J4Jcq:T`&}fw b,On`G|pdg1*JUeg%ruaI~bo=Wh|[N:oA.oJ!pO|a@RL(EJR#4G= 3t$p5sg.PG1FR0hhuw*h|:T83($w$KxBng$.pDeyWd~jzGa%)x1<!&EcZ>fv~vv~!lt#PnWp*f.*C3$=pVD.Q1CP{sgnGY<$tG@!e$#pudnf_dfW(0;+UWnvZ7J:CI(Iu)E!f$9y9)E*+ZkyB`??Vi}tKVl)O:|uIU3j|}np!6meWabI!jaDN2A;&-OBvTrw?MV]@x:!rOwc| @-{I(I+4de*V(2-?UIFMc;SSB#~HP1jBN~@jxK{6QmZ#F>wCD;S1EI(baN-9z)6t%Hvt8.)~|U-A17AJNJVcNSakTNShi3ikIYr1zMm?a 5%2|:#)+BB.uK3S$=-if)Q!idJ5P.iudmUXkSB^J<r#h%]D&WT+80b4BV##g&yTDQ7S2Pb(a.{Yw,}U;j@P$VfI<-3F}8vIkpVJ#p>0m e.Ea9`4s6aSDrQW$?x#QM42i>@q1tt%,LCvrxm7Sz_oSIQCpo)F]T^- ^yxvdu[c8Bq.foFTDVY#wKhib&GVC4uRVWzIb&(#x-t4iYjuYG1`p%4]?[k-?(.LMy@< I-(4UM1I(}=d-gC`&LJ6x<%_:tqn<JAYAJ)kJ0CV&4V~8v.k1e<eeRH,;g9-iPnp|t?b7&X8$}w|~3*O:n$h%;[Fm1t2mwUnjy0.M<_pBSnOux|kyh$M#WT%wTkM,]V=b.a7MO1?:+uc<Mx(1Z]|AnQeu5xnX`fOO0m b5)L).VRtoa_&y ~L1JH<0RhY2>)4*%o:l*kn_U<i=VbL=]*@vab2OdlCH~b&za9FO;K<^?W25FU-{*4RnMA ^fY!#pLbB 3Sfw!bZ3Ew=]7d0(J#h9xHkP-_7* o|Pk.L*R;q!B-AWXj_jm0a2in4kWm%nHfOUoZCA+0_c^$3`%h&o%Hy.1?9bs[7wy#D;%#vNj#_:+VRj*BC|4$.0{nw!UzynXGopwl-~D7V<bzoQkF:NFF?_mw8PPS]KQ4~56fv?KPX9`p6.8.cG9N<&8C(ebR>r[e+_~<P[p+5~]u@73IV@85iuK;8=a^Vu@7=?PweG]8,iK:^8}9=BRW-(a8(0a)oZT9-XN_ceCVy@q%Qh]ee.+BLD#W4Z`yic-z2)a8#0S;RzfQ{{#EG<ewpsOH.iWcZCxWz21;8S9PfI+;<n]2Wv$z|M#0LKePI;Vqasl4~a@QqZ|q5*~Y7U|z7`VAPdWqTtwwakcyA0k^6eqs,LSu=3  ","w":45,"h":42,"x":22,"a":"7=4VZQ# RgiSL!326srjI   3n=[T9{)UHe<v.ipQRUR*U%&ER:`{@Z%b.T`sxl>eOF-DF%K&^VguO:46dM]Aq#k*?~gl-i}L~Z}xXiQ=v9k?}aWcS&.m8eI^cI|x{Z|F%d4iM6?.*2q]OrRq,ZI r{7=_vYTmA-iMyB<sRe%<we[`le.L$?H)+!T>[O0Far;@s=$sDj}3G8VrD72Yd[1mct;v=DTX) Nn:} I5n,+=?v9[!LKG()z``!x AYyn#Kj5_JPFJp>$l6@l(4LG5U`yBfci)5Lw#b#6Xs,Hqf<Ax2Y>2x eo}18K 25r}_F0j+BVt%2>c+skX6@&5fp0bp*7|mWvA*6$ 2FNX@]F>Go(9`&>3ALh1szp<7<ob%A_{56`5QC~<DPf^=Bf@u{2_","aw":23,"ah":30,"ax":10,"an":2},"massu":{"s":"7=4V.B: RgiSL!326sB$*%  XiW V9D+<Uj1QI%Xe<2fiwYhiSP~OP<k|Crd>3Q-_K~`@7;X8|f{h C*^ht GQO{+!X03Il{f8_P?FaTpraI*nbbq;m#AwM^KXt+APW9P9<[Vh[iy}q0 5{}%T1FsPVu,bb6[}ScBM,PiryY9[ck]5!P!lACHD`DE0Bb!=)o]tS{Sa^7yr+hOE&m[bv3}rSi|-2[P?$Oe6TCiW&p$%[Ozhl$8Q+`,f=ANWI_$A<%g|ig!;vYFvmL(s!{Mj9G>ZfOeN]OSCBr!`bfuSY)pY*A;{kK>}ti+?M|,Pg }Cx7dwZ@Ay<8Mwb$+*kr+i.P]@!; YprkUJ$[z]QP)w}Yx-t8-$wi.Q?K:lzT{#SNJ+  (EP&~2gIJugQ!Aj-0#biKE vMB68DQT=vAb`!CSUaF,-g Gs37Zw>  2pl%dY8![6nK(S}@:nG9meX#v,<PK6:N1 %-tE,zPs!+ZYjDKiCvBNCFOn:[Snj{LpN j{D41PCnhQUb.!b(+z+y(:p( 7Eu4m;ma#t3+AiS<~8,2Ps%$J=vGMo #A6IZhA$7;uLE .G1be*4GA=&<nEV49#6Z42B |=_f! 1 0<~D.rSY8M`(s7_%UDH2tJ;NI<% @Zaxb$<|u3#ARyO3#to6!P;RmhC]eA+xToUy] c>amY{WgPOd*$!%~3<|kKO@=#M&4JEZ5>gM!`DXh++Dr<{OJP*!Ab8CPQWe#.c*9j -<vteZ$U)#2c=&syegr_0{^Ua@.l:NtD([}*}&kRzrhh`E([H_~?:P!*Gx*$B0rO:T{4df&B9=p(}R?fcwc@zTB1|W.%37MUvFR &`Ah`7|4=Cc6{qXu9itw([P`[z9:ye!`]g!4a_sukM@({r],-HE^r_FC0.Q)a1Q?!`Bs)(n93s_gtWpNEA!`u3.jdwDq:*2LyZ>~$(~qHG;[RnATny;,3ZK:mOv#IZHMqfmSo4RW@lt{y:x7 ;~nWhP,ZWS:w@^e) ;bq7AU)bP_JTTb|__8YnMP#ew:s0!VuzO?.!(5GPP,!{J f=+A;kVd4P$o4@B1i;29ai1a]F*G:#?|=r-YwAhdP,<_A%Tb}@;.9*7%.QI&vMSn2a]F|k AZM3K{1::HD#K3{h;81qmP6<QzKv:Ib2ee^;(aKyxnOULD8?_ A `ESTh8;aeuIzMtU#AA<o_tQEFw@q|q66BMoF]-xi,o_LH$lj:i*!`T$d62,jFtp?k#Ki4hmd4vF +NJ@}^Cg]&`a @}8!@YHj.H+v]3[PL[*(]Z ATT*A5]-tx@bHw% +(CJP.252GGB8mSx[v*Ve^rZAql;tG .S>G|_xFciWPQZkwF%!`=t~&;k 5+A|k<}!I15`.2L{]9gJEq-pDBybEo^|_^tNj(~Y)$+6%.t#A5`QWJ,L8DACUKJ:4jEUk(Ak9|%@KWtFNN?!`1mN*RJkm+?!Gs!!;0LTL 5#uA} tC~v5$!|A5kEA@ ;(T.zi#AMX>UcTz;~{kk`tV,V@FfR$}@sq=sM,^Fpbo1{_8eFK~4i6oz` ]i9*Hn{zy`BL`UlC[9!]T%mR mH&JnQf~8`tz43e529Fh$][sG!`mg}IZh}9kgRnowq$tlbW]7;_-l9&f*B,7CBl APF)nrLC%%YfqdnI]uV(L*+_R+kc~xhAHI-lr]Dff)D,y)~ lXVz4e; VNNSRHiPqj{k&w:|h#(xM_kEAKZOR&l-:%+HE 2Ug., M0z3xH,w@iS}gJGnOY`o0]-g08W3}.=`l4x}&tSR?&Si]rIvZV(e`*re X7iK;G 2;]7Erdifp:l&?AX3m-#x}l-:wOEBO_f[2cKCf,E`cT ;E_^S3`G9net()r8:1U!SQ8`@`-iSNH}u6zP< 5GV78;h(AA8( PPBP0$#rIk[SP%cRnkk7 `ow70)hw^IA2,9ba@v@@|D C; 5^FhTC&:=f1&5Hv{$a=F_ A3?!`Y, (q_h5*SP!my(b}kEAQHG|oB:IE@}q)f}Jf,fB3c .DvU|oDLMt+Q&X3nH1y==++%270p#:%]#*|55<jR]mwb,#7T@{~k_U`Cr_h?,1Ux7,9i,1%+`)+X{y&|_Ip1c A}i.!P&y+GM2f$[([I4$3QW%y3idR ; `q_jO:F(zw_2J2Yn)*d ADU3Wup<_]g!xi,$JT@A!)e#`,K:wxP`>bgAB7`e-}_yJf)}@5]iJ$sQ<+AE< o$kFCXKK&95}@A(BY#`1[%~x@5i_ !A*+tI?9<TPB65$ Rhh>FGiMe!K?B-q_i#N2iy-UBl|_-0HP8`6D19{9w@jm{(!&,oBBE+n4e#y9gIacIpn fPj4,o}U9]}*yw]9=MIBv&Jcifs 6|,A;kXgGfWd#G7;,#%23K#lnY8&Wd2k}1PW^i TrrAlfb{-o5+AIu35)W^U-R6IbgyG5.w@-2:C;kPLF J&%`<6 SiDg8%_~UO%RW<*zr|I-Q%lEDCQ.`t=[`lIrc:L)X>QQQ~4GTS*P6tLOG Af<#`g4! [~}@Pa!`FT ;iLn{P*RvU9FV{,)[-%b?2, rFARH-!xU853G-!`K!M y!4P#>m|PJqEDQ`ify0r_aZ-Pf86v5`U3@7q_7# $vwv%nF]p(A@AWg$lM_P)$TnBup]P,v?9%IIBV[<btZdw1? 28`n.}4B%MNTF& PZHwhzlKi?P6nmQHe#zAV|oD rtD[4L8wwz]K*w#Jqc^Vp2l?, (TWr: qV`w8MX>QwX+A>C,kdJHd`M@GmwM8oF42IZ*U!{n+<B:~Qpz !S  L[H:y(vwv7co;Ke,`B~qPm}@,J.GB*~5X=IoFl5*$~WFYqmO*4 JNmUXQ{#p[56Cr?DFwL5IQ^1heh}ebe*%%9C5:Cd>ZCfL)*ui&`f1^iV~h18V*3nhmyN^V|bUvws(%Z;k*&AAAS#(0NG55u^u3pP6-JoLh+J$Ue1-e R8#E+Agjj4I)]Z]lB&=x<8NZ[fzicp M>[yE}qr3@LO`j?Rv=~{%FX@mf!|*my50O&YbN5<,>E+sr<)5}[2#xMgXBP0VQBlY^X6!`KM05hDoy3gx#Y|_8+IBy2 +!{4]@{+6*ZFnB;Ytdg{4i^GTP%-+d9rXDlnIR| r.J>-7~C^c2([`;?[kh$0)Fp? ;T+Y,u9wPTIm!q(#.2m(aYMnT(.,o]Fdv~1<4oqxh^h$[$i!g[)h dk1^aP0SU9A6b{e.sWuw=`Rq(<0rwkQ94n3F<&{:coAk%S;|k)Z7|-7Mi-n7Ph8:ZK]:He:&VPK<V({=o4<zH0{@S:#d0~&Pm5L0PDuowPjRz#PDj-[NmZ.pD)U7a|Lxw]K2~@~mbYS ;i:SBA|Zj1g07Sw8n%[tt?v<W;R-ry#0Q7|g*6-PeP MiMLJ.?2U:I!x)psqe3x7f?j.9*[j-Mk`]$n?n!`K+#6M8_+0L`;[{1r,Z!=KnTNH6F`<~1u~Qzc2YQl2+l*rU$z~tPj1icd&N2!S t%~,~E8hh^&;-Dw5%!;J221HBIqM_:$zH`@J.,[n1yQ- k+ AZ6+(;F7tx9 (##4$?%4<z@s(FP64 A,iw#(Srr?V AE! Y.SWq]gO26{ze M4M0|82y:QELU!`KrH;Qj8s[YU&kw).8}*Bx:yL# }e! ycp)z^D LM=.G~gT$QFD ;{Z#rn,x{9.2}B&~-X{(;PXQTy-0mPQ1$:} ","w":47,"h":41,"x":22,"a":"7=4VOc$ RgiSL!326sZ_]   2@=[V9{)5H1q-a5+<8iPSj{-x71~uYL9$pvLy_gfb`<2i?Z<IhP_BP1dO){-R9@Prc.R4ybIuy%}NhWIxilbYO+N79O`#9i)7ARgLv]B2$_x;gPh^cW{r.cj7[cz96?h!#LyfoCx5>){2C%>T9)N2 D|C0Yd70%DF7,J_.@nw@PlEvz$@mdmy@251PBQt`fqr5u_R02ZHngf(4@HPZ3]Qo7R]n]ZdnM5jV_K=.R-v<#5o69sxj@]}Pa]h3YmQNsPLdbPnU-C:KR|3WQ!NNkqUHtj}OAnK-{V|7n0BYTA#qNNBRB$|7lwhe@NnBY74<{U)NBc`wXS|G@J ArErZe<I(_aeqwETA1z5;9WSwv8PH5z?cWFy-wgn#6|xG2r9ER7 aZ{eBwv|ynNU4DFuA7uR.ahI(dfSgZ`&{Gr{4Z!7Xuxyq`33,u2;N[i9(H#>C oCVou?TDIe<Ad AE+<|O><`-0.3_m^OPexEz@XMgKC8zU-0Xf)Bw5^v M9,~bm)QH%J>eJvJVw>VM%XscBZg8ej^C`ICDan`XH?P;c3pG1xB(iUKzGce<4j:  ","aw":38,"ah":46,"ax":19,"an":1}};
+const SPR = {"prat":{"s":"7=4V$,3 RgiSL!326sY1n#  Xi):-PR6S[1qfUC}^foz}#!S,P-Y.J~B?NCHmV g}_;T>FDu+><Yg4!Tgs%2%twq;=+0{}YC-^XC.7r.sbwQIo0!U(OvNpoBtZVlbqbRQL|2ke~#mb*`xCZjkDgPv0=i4w$]H_H.MP63!M+&o9KJVd:[c6M.J(Mt%e^iTZ? b2ma:hjxLFPAQEHJ8-kO4m5Zs{vZLgu}k#F{K&<fT52gM@+?IX gA$?PTU]68$9M,$5~;<~N3M`|r7g<Gr)a*r3+xh-x4K$f*d6MS<>kWT$k7S,Jub#:s,oHSalrg`MM4~fAr,mHxAL!-;qzSzrCZbg513i%|q!o]jT,Pszfed)q~rv?daBV9MLjUpxN%0&5Tron>^;Iaf@QW9iebYEgRdoJ{;#oQ=Xr6xBx0x}?$8HqC[p|2^z@J:DsN|-{QBFpmf^0!2lj9;ElIK4{)fLQ|[]55CCc?y<^nm[b)~T#Yz8O6Gd@iEYL$E0C-d#E?_l7[z5aK$:N4}C])aOw7b<k@pkbQw?HWeBhy0vedB T 3FFDjoXjc|OnDdeT7(3=3+TN& 3@c^eq VI&CIIVI$3La2b&<5NLySiqp<k(SSA5N,G9XGCjWQ]0CAl$:CZw>a8VA;{I,<`TcS@cw>l|7P])a3Z<p}xAxebVc<O+I<IiR5tQzLP0oOV[s3A) (a-?r2U)_t,gkDI6+q^35j8I`CCjgH4xiBt~obmI}g#%`qr7@EMcN&M;m p{|&Kq}&4d1[4%[,Tk}|}e1&wALGOne-&Us^p$fjEwJm9CTT6U+@Jn!xH&AyWB+O15X~>}-wvpI[&mhtjg])>I5~KnEgDovpg8)s--D0oneF(:4b?H`P|6E6fHnu_2|q#!s%Qr=mE8!xNnV;?YX@ga{1.XLdrBgz@y7,bzM,G;kqi[v9^(:LBP~L`pMC2IfM`p9`o,I:bA6jJ* `,woY)2LDI)}w]lvg~>u75}[jcn_e0?sl.X6+FV}h}FvK#6X]S)kgP WrBNv9DR{zUQ A8CyO[F]c JUVP;KK46a+%70glLnM obJ+q<?My,YRI*^b`t`iiW7WVE].VvPg2w`<GWPtb2mzJ@#8!HPm#MI1-uE%m.EQkdLF`4o^AFK`DCYy>dP4eWw9j9KQ`xS08zP;zX[VXQdYHY-K]zXqGF;yCdzn^0!Nj;p>yGm3U{]^=@_kvXXxmQajEQcvH=)3d$T5lu>b.R7DRCikL6b0R M`ewDU;Skp$(0!e{oIu$2$)5,zBJ}%)QW}uhlJ]5Mt]1hcG46L`kqI6sD;Tu0]SC:hzet1?&`#7jZg5JL>kH[474XEz2Z12v_w^^|j67=vnEL@hKuoYu<4Z[BmB6!ErwMP) A)cuN+P=.M6ynUjRJl2>x<1jj*z<8Fh~x2Z:GH}$pwL1mRM:X!>N3un;eLld_n5e#u(Un^n60 +RWX@~4|AQ?dklpiJ_E%&g_<ptGO9=^K8t!6$x;&N[9B7W]E<XJYJyhq+~P3L1m5Y}W.n&:MvtWV{A3O]CP#R;`>qY^h<Pl4# h1x`p(?o=``@7@A;-@gtl7dQPfQd%{U*7d$|X{HUvv519$AYAddRl[fE9#YR3b%[pmQN7_nv9BL7Meg Z#]-AI(sV3Rv.E0!CO+to?Bkrij_Ha2]8375![fGx+AC<$PySyV0aO~C:+:LA|DsWj,SWC8fZFpNce.b$?%ZNN(Z;]&6 $_UvUmmD$%b>i5_BZl8%<Aq8srLk<-kYP);lwH;kQdI]<z0sX|0gghnxP51m9[bTZCsf)oNsC$Eu[!EMGSdL~o|R?6#P<ri{h2VZ*!5QXMx_:m!Tlevl[?BAy|$DHBR[6$0,QcsOyg GOn`Vnv&Q3gHuh*-z>GxU?u1,&l@LmBnX0FZ!*q@sG]c=YxtI`XQW]=)_nraHhsBHn:%7){`6-~j>&oVevmp_Y`ovag($GF] X)==@hF)j%b7=}-&;O1giy*1j^e8~ExK|I%,>:KkBeV-*g%=(;*Ave^gn.0Wx3mr*bO8pak1J(;n3F%]*ri9&U@7+y(29<]LAvT8<ns,%Wl[O J$cFx7t$!*JU?vSpyRse~t^=ynqv& Kj+~w>;K0qCV#<HZu@HGyC>!o[1E 5T,<RUJQZF:DR?+lNnb!`>!!!6sI#Q^&Z@E*d)=;Q_2IV9iQ^2w?@]0O&22kN?79mfACt4(!)UI%F$?8*;3^Cj#BVP^XDl-M:N4v.c-VlU=vF>%PG*+.`o8v5bnT~DhMj.!]rb^$A)ls`ENJbhg1nSC74KO>EYAhf~*N!j%JC{4<A(+@2WP2b@h7,Jnw$0P!h33!GMxF(0TTE!fvs&2tcB@QTrgJ2 5&D-R>^;wP*+d#jghdQlg@lPqKK2XlkEzyX14IUlgdX,XV!|EGyVfse-tXkut8{tFtf{4.*@p-,<> 5aQzA*4AsS9Bo D>BGW~A<E^hsXP~4gP4Wsa81_NI>z1(?p^tuFICaJqFmY!lb lF2F_#;3[b*0G&e<3tz,?!5ep.R{~T6[u(y_z98t6O^UJ|8,Mu u+T  ","w":47,"h":42,"x":20,"a":"7=4V7)% RgiSL!326srjc   2@?[V9>:9Ve<p.w?j1OEHe=H w]L|q81..zG ErWEjoTe;.:`$sl;:~G[<yl]F9H~3{}[gzv+#4MNlFxPgq9s}{.b<v5OV[<39LR_U.%Ty1waCUM,REzGuiobKufD)=L~eBe~nw{i0kL-9`KFI~e.qVT*m!EXv{LGLCMuvDpJa5oaK#x*mi;1-KiLM|4vhkX {aK[v~,F&e[ M6jr~ fLzn{Lkg3W.o&ddhAOD;}p.L5~$A-MQ?vsqP[oPio]OKq%zx<3dsvr2YQQj;v.y#`AOf-pJ!fcH`{QAuvd~E~#@CJql5TGi<c#G%ll.gFD#.n]50C Ds;$-j;ODIR rQH<ix4a#<#vXDIGpw.Y_l#%XRK5mKz~m r2M!%b(%duEUo^x[,@gy,N[<GF];s)~i`-}tQv.v@.IcP`[ G}{v]r&d|vgp8^.RVs*Y83vqUJJY9.i8pN,c-?7t.hkyy^;sU2s`|<upM=p7hGqqUJtQQm~[+.s0uYZ]stk330P}#,NEvMVu+Q%lX?7gV{N4jF]Uk!<0Pd.u3N%7SIVIQG HnC5P.JjE1}X4 m^KVk-@z<y|C?~[h_ll$;ChkC%!YTY_U]Y$`pI[UILNZixXQA3Bhyy-u1GhK , ","aw":35,"ah":46,"ax":12,"an":2},"vidal":{"s":"7=4VTC5 RgiSL!326sY16$  Xi<:-P26O[1qq<3[+{m~P!F#d[Ks$b^;h%k`X8es]eLllOyVSZH>jySlswOYMR#s_HYr[nG8=d1qQh1&UWB`FCSsS1wpc8RpxmH8#W#Tv#osXC,#O*:$@~n#S9vS%*%65&{GL1T+nPI)0Guxil7Gnv&1nfS<WI>d1qf*NKVX3>L)m@A@-Xb7G1,avOm^E)L-*89[s9wZ{lu!l9mp7(MbQk50Mu[#)j]SZ<VXP~0yAv)Lw}8~I*t}# AxCera(s*TG}E+MZ38r3&sqIphPhwxZwM)[ifVv0^D_yWeBC~OWi#)1mNp0cIioaT{lSd|!~cddDjFQE>5-.;b&z6KO`QAP&5pr{&5lSAr%ZH|=B[ORFFNn{Fk s-G?X7wp9}.r5xK8;&y~j>3z[pb5cfOp;!LK]zfArA]-Jz$TIGv>N~{aPv{C9Z;rc,oV&bQOguq?wXaF@=zdz?#POr0*uX7x)qYf|km]v^A6Iv<3MXbLKKv6?%AlZ(05{1T&SORI_el.,>%CUIY=@ZeZWDJ`hz66XB#Q[Yv(ZHn}.g#DdWP4o}e.49kitu[tC|Z{M%:M1Co6Yp*!de550Z~ dd^Yu<Y*`moF+#I!1]fy(V4*tIuIp;kV!K:IG71ILSBO5L<*M?50.X6kGWE}`{@cv*)cDA~_z:&zCHe`esGS2Q@}X]+Qwu%1X2.UT+DL%$+;Z>N*Hz`MYmd1~sW#uq@m5v|QO)&>N$p)iWHa$k{Q]=&:SAr2h(qura%gN@`^tw&.?Dv9UBQ(66^wvoaZkf?n2t|e>$?t(lC8lWkEu1<<u]as0} !QLmrq-)(q_?pI4E@^K=J`M4PL8^Yit[|vr<?#Rn_A`|yk0`Ek?:<NWm*pz<A{&B JM.Po-#b=be4;!`uD4xOKRsQWY0O:>;%AXO#quyMdQUzwk&!q77j5d70pUNqR~G##(]`qlwY!SxYqCh>Wq9)4GCGmmqH+ pU+mfW%-[p<1sQo}~*^iPKDo[{WeaWlL 6r?eG~)*4G8q6e7#Fmrr[AY<hSm[Hn>eKzh~79P+?{s5H(cbuR*[rS0SS%#$J2g3yt^~s0 ruin%z#m3!AzCA&y{w${sgaKO_$}5$tz?DFrkxR0^REAoiX`dEr3.oaK!P3SZ7Qm:;6;!;Q7_=)&&Zzkq7~:|FtW:KVLBKVT%CC5]2ji.I:?HDGS,3qI$-9S>j3q*O|#mY+G*G1|VJ5qQGD4,gycoOesn$b^FK7w[@92AVY vU_B1ul|ufy0!FB@S9V5Yhwr.lVwgr[:O3HB5wp+:0s_]!zdWM:|y][Z|Ki.xdqxy4K?`^tlqYLM|V=Uis^wJ7!A)N5>Fh(J(b5l(1rY|!Gnx,X!S|k#e_odb,9EWrSu?Kr+5}*9Iq<h~pwNe&Edv*5Qj48%Ls7&K0q8+mK]~be]I(J6x2!kgem|F8g_OI>mX$,6eY?mY GykGFyRcfYZ%n9#_u&6(nRn!`BLCL;q G}e=6c4H).Blgf{->Mh,<M3OaQW~,]Og+xqnET2^C]Ibs~3s]M72Aup=V_OVMMu;?-<i-V^&Eyw2qqmYLYwQW=2P,h`TA]*#w#DkIed0kOEI]jbfuJnUH<2]6PTRiFTA;G`]IF]]IZ%dm5pOccfUT8$&eo4)G*l]je.ruQd(Te%v=$R061q{CqG|EZq%8c;+<n H`^FBV+JzNX+9m}.bIy@qGOX:IVzSUK~P6h`$*NbxK;q:b[q>(WaXc@d]IcZ*.Ws!!^h8{3u=w[:s.Y!NLMd~-Zd$l1E%z5Uu&@k+4Y{B^ A~kMX!|e!iMu.[faE^Ry.F=7<(5>w)b5UtF9QeM,jRe`ioS~4h;)3SloKSelLST5UJSK|>mh.CCob*{hPAra<Q`^#z#u3WyH* e]FVKBVJKX>c.Uyk5t0ANj-nPo$F%EB!fYX^q<b+)sH<h[Bwz^TO(%p-b3tbMdhCbi*!{Bga,VDO|@=Z_P)b.!V(r38nhtw7R4#~X+h>}9pK3VK4+G(b]oOiQ`e9qZdO8Tey5{<@Yy.!&nJf0OAo9C$j7$PP%QNwFR`kfq#5.3ztnj]vw_]<Q+`+-AA .Gx.(=pdu!S%v=<Y%XPPI]+:7^[|V-;0{2[SZyL1s-<}#m^Q*!eTEcAZq#FrD}%[K)&P{zLU:uFP8C76;SE=VAvogFK?7LakfSwe-DwW:|25j}%.3ymf0})}e*B<6*lC$@d!`|*DhKs[`v[]_:384-$Hra02PE0V#~n<[+[jwduGv7;,v>ogC8rlrZboh?oLVEr3!7 Q8-r%P7a_vrk_g5bswZ@x38^Z.PR1L^~~.<HoJ%WO@BKCR~JKsU5&7?ug>(1E!AK:=~K&xYAXh6w.gQA:`Aq< M#VTG>x%1N]uVL,uY&O?i4[I,([=`AA~34)Py^<!F-[ SXfxKlP]*U)1^1q+PS~Nf N]Hv!7t.oc4+.Cor6alY4~z|uAx%9s)pzXH9W7yYxpHE.Q+PwUNqc4?.Q9O},5#`uXPFq  @mbGxM#8<s6xdq!7 Q$`na.;|^.iTa(Ks6;DW2@u%SSuA 5}*dQc6[K;bUBh(!A:}mtz1=#9D3?U$gZ[~U0OWB&m^NNKvI:dsy_eIa(k_q6j0tv*mUgNJFf1 ;*.?.<1@=1!:5Vq,^MQE=Vscuvx1q6d7+_H20@W*>vV9F^K[g<V,)1-+u@JRyv@Kmr)F^RuM8adTk-lus^cuX9+[ifH6v~~n+wO.5ykf&Mg@,T@-dxwd4)!)L,pPf 9#nMSglP=,S;myLQP)`e38Q7%u}]a(Be?rEO_gu=oGz[f-luD2 (9<*`&hMVnW[|W*G-=+hQn?[fAm%u82ZFK~`Y1n@MQ#,f}u.V_mnJ.&E:YGRTJXpK>#_G+gMUQGSn99, [A=}=5M9q&~MZ  ","w":63,"h":42,"x":33,"a":"7=4Va`& RgiSL!326sY1}   A^_9.Pf5v(>d1qW({44&k<JqFMEZrw&R:c+)b#m1TR9TdS=dH[~O&n3[7#8:;-[mRRp3&,{}[gM9vOxx(-g}RtZ[`|p{6.Iq6Y<U5p7c+*G$TH,X,@,;(3pHmH>G9*>@H1NC}1nBf`5o,d`ZMY*>$Ce2K6]W8y`fGIy*V0Me#BzGW^9+@$|2}GAtc<u<VyFNm.&j0>p(0CNg(-zHcc=@_p=.=d DB~).VI*gF>R=-%Lo8exdLpZvcwt3z)&fk`=k9HnL#RThP[tP<O#g:@4r>7PbqjawC!0gkao2)d)RS;TzTDvFRk1vYT~7ZdgRZfeEtE%X@RP3hWr:U>8rO2t4@hOIZWo{qQ66c)}~R=>HOMYVm|Up9g4Fl< Wx!mZ D0p}LYVQ=CPf:WIs]aPQ ~H f$;O5$9!xJ}Qx6=&2.JYb*c`mN_|%(#nFw%Jk7I(u(}5Y{k-J9<m ({jezfG=SI36GV13uFmk5,sbY.rm0@S-7b$NOpMDS*4ZCV@<SI:S?3CVl.DW~WzqIyRju<|](:gpB>]8l@SI7yK>^-OwIy-=!zb,E7;F#%3I^Vu=A.fH4%GQBIk.RSJ#dojU3xOfTg|*=xJnF$!Y1Lxyh?)u=.JUL5 ltNW,RrUL !vd0!GuC*|&hpe<{.pV@>KAMKQ&e!Yo9n?l5B]q;f~p2q]D$[I|7k[OOhd<>y.>=@^dinKO?N^.ha4Y:RIV4Lglk^z4cp%j`r$lF$!YSg:R|=q(KV#GGf|t*q:Z0E;n>!A_ZYTcBn}uKH_0T48gmlUI56;y%@`0~4I:^>1* L+qGIPcKO1GGf7&b^Ok~f}tPrj;4%wL!Y35c)d+t4ZGglI&T4cpmk(0z4j{@[cMnze<>K4Gt| n}k^! ","aw":55,"ah":46,"ax":27,"an":2},"melo":{"s":"7=4V@?3 RgiSL!326sCSq#  )R&:-PM5S[^+KVC}^fFxB-:4<[Uoo5l1YEu^Dm&@*V{4q-)Q{IW(UlnoCy0n`E7&d<4NA|a(LG#X3lhDqg8hKKb)xE{},P>`(3MV&qQ;h1zNF*7g`{1kY_ok)2<Fai0^F[n;q#n;K~sf3Rl4n0)^9)F:JVF6_kv&y(TNW|Q$i}#{8(_.egoa2v-}^Bn|;De$woe|8>k<3s}v2$W;.t}9T_.^Yx.07=QWtQQ]fDo1v]YxtUy@-^{6s]%v.HiDA.s1aj~U%1p7iUKWt1-rrm2^+NIV+f!5sUU(ecPX08pD|2b%FxGDJQP0lN6r+y#+p_:A~Fk1m &_1LfZ.izG}Ku!7F,GG=5sh_wg0B9ZVVdKb<b.4|:Sa8LQw9yB]`$Pv<2uTHG2OUsiOc$p:Y_$e<e<g}(&L)q0BLx^P&oW|GOdpDW*r#O,uw%iy(9:%#S}f9-iZ!!s- S#s]ttUh[:DJUIcas$FvSDp$JV&@`?Y~K60(Hw_2&s zefPM*&<,QJ2Ib y4_9Mr8f(+&Fj3{!(3l$QWKWt1JW2s:whNsStOWK7<+7nPoj:P=P?bgf)a3P=l=(Rk #p:Vr.L}a2I|$-a?C Ll<_i,Uy*^g=^u1_!j*Je?Fk`+tZ-?:EQz$}>a23Pi(DN+Bt!}9%#&Zbnm MVDuHSQ=7^>E*TXT,rIe-*m<qRP6:o3pjDMV=M@$MGP7%<:`&*Uvc@pL]bN+.C0BL1V|1?#X6g`UN_081oRb<`DG6xQ!1z:9X&H!L-%Xw$~rhU0j(bgf`Ob]p-q`zss2Skn|hUL2A88Y7pv.~vLB[!<Io_nj xQVwFB!:J^VQ90m:?VE6.kjpGaUGB2m<0!bviE`I+uX!KtwZ?![)dL$CdXu7lS+S?(P;c:Or?haC_GT6$a3%%Y>#P|[@+DxR*kQkU)2R%~qW|`*?OG<GmAUe3O;$Pv<<$`U)UN0BgF|%$B! 2d a3MP(fBlC~<gs 4KDIv]L[iD]H&e:CoNX-4mFKm<KQP?E9Mu0!@n^QCV0?RA79*CN2xg@_{5SF+dOlfK~Af;A1CQY,(Z,XH5Nq4WZ*Le[]Pe^<X8RHQ?cO,t .~W0,[LtD:U2pU-#aA*zOzaCp$Z*0B J!MMJ<D73$4b3H) 1, !^|}3c]Z`JVA-~0Hji(KDg=y,uRJ6qo?,9jMeDwUC$XqXX8g?f<6BBvMPW9}H&+7$%#pE:N5JnEeN%_(SJ-@]],gk# D=HJVkExt@Dq%i:VifYm)ZboHsbbiu5%_&*&FrU-=(a<Qd,;N?WG}u*Vwg[{4J4Jcq:T`&}fw b,On`G|pdg1*JUeg%ruaI~bo=Wh|[N:oA.oJ!pO|a@RL(EJR#4G= 3t$p5sg.PG1FR0hhuw*h|:T83($w$KxBng$.pDeyWd~jzGa%)x1<!&EcZ>fv~vv~!lt#PnWp*f.*C3$=pVD.Q1CP{sgnGY<$tG@!e$#pudnf_dfW(0;+UWnvZ7J:CI(Iu)E!f$9y9)E*+ZkyB`??Vi}tKVl)O:|uIU3j|}np!6meWabI!jaDN2A;&-OBvTrw?MV]@x:!rOwc| @-{I(I+4de*V(2-?UIFMc;SSB#~HP1jBN~@jxK{6QmZ#F>wCD;S1EI(baN-9z)6t%Hvt8.)~|U-A17AJNJVcNSakTNShi3ikIYr1zMm?a 5%2|:#)+BB.uK3S$=-if)Q!idJ5P.iudmUXkSB^J<r#h%]D&WT+80b4BV##g&yTDQ7S2Pb(a.{Yw,}U;j@P$VfI<-3F}8vIkpVJ#p>0m e.Ea9`4s6aSDrQW$?x#QM42i>@q1tt%,LCvrxm7Sz_oSIQCpo)F]T^- ^yxvdu[c8Bq.foFTDVY#wKhib&GVC4uRVWzIb&(#x-t4iYjuYG1`p%4]?[k-?(.LMy@< I-(4UM1I(}=d-gC`&LJ6x<%_:tqn<JAYAJ)kJ0CV&4V~8v.k1e<eeRH,;g9-iPnp|t?b7&X8$}w|~3*O:n$h%;[Fm1t2mwUnjy0.M<_pBSnOux|kyh$M#WT%wTkM,]V=b.a7MO1?:+uc<Mx(1Z]|AnQeu5xnX`fOO0m b5)L).VRtoa_&y ~L1JH<0RhY2>)4*%o:l*kn_U<i=VbL=]*@vab2OdlCH~b&za9FO;K<^?W25FU-{*4RnMA ^fY!#pLbB 3Sfw!bZ3Ew=]7d0(J#h9xHkP-_7* o|Pk.L*R;q!B-AWXj_jm0a2in4kWm%nHfOUoZCA+0_c^$3`%h&o%Hy.1?9bs[7wy#D;%#vNj#_:+VRj*BC|4$.0{nw!UzynXGopwl-~D7V<bzoQkF:NFF?_mw8PPS]KQ4~56fv?KPX9`p6.8.cG9N<&8C(ebR>r[e+_~<P[p+5~]u@73IV@85iuK;8=a^Vu@7=?PweG]8,iK:^8}9=BRW-(a8(0a)oZT9-XN_ceCVy@q%Qh]ee.+BLD#W4Z`yic-z2)a8#0S;RzfQ{{#EG<ewpsOH.iWcZCxWz21;8S9PfI+;<n]2Wv$z|M#0LKePI;Vqasl4~a@QqZ|q5*~Y7U|z7`VAPdWqTtwwakcyA0k^6eqs,LSu=3  ","w":45,"h":42,"x":22,"a":"7=4VZQ# RgiSL!326srjI   3n=[T9{)UHe<v.ipQRUR*U%&ER:`{@Z%b.T`sxl>eOF-DF%K&^VguO:46dM]Aq#k*?~gl-i}L~Z}xXiQ=v9k?}aWcS&.m8eI^cI|x{Z|F%d4iM6?.*2q]OrRq,ZI r{7=_vYTmA-iMyB<sRe%<we[`le.L$?H)+!T>[O0Far;@s=$sDj}3G8VrD72Yd[1mct;v=DTX) Nn:} I5n,+=?v9[!LKG()z``!x AYyn#Kj5_JPFJp>$l6@l(4LG5U`yBfci)5Lw#b#6Xs,Hqf<Ax2Y>2x eo}18K 25r}_F0j+BVt%2>c+skX6@&5fp0bp*7|mWvA*6$ 2FNX@]F>Go(9`&>3ALh1szp<7<ob%A_{56`5QC~<DPf^=Bf@u{2_","aw":23,"ah":30,"ax":10,"an":2},"massu":{"s":"7=4V.B: RgiSL!326sB$*%  XiW V9D+<Uj1QI%Xe<2fiwYhiSP~OP<k|Crd>3Q-_K~`@7;X8|f{h C*^ht GQO{+!X03Il{f8_P?FaTpraI*nbbq;m#AwM^KXt+APW9P9<[Vh[iy}q0 5{}%T1FsPVu,bb6[}ScBM,PiryY9[ck]5!P!lACHD`DE0Bb!=)o]tS{Sa^7yr+hOE&m[bv3}rSi|-2[P?$Oe6TCiW&p$%[Ozhl$8Q+`,f=ANWI_$A<%g|ig!;vYFvmL(s!{Mj9G>ZfOeN]OSCBr!`bfuSY)pY*A;{kK>}ti+?M|,Pg }Cx7dwZ@Ay<8Mwb$+*kr+i.P]@!; YprkUJ$[z]QP)w}Yx-t8-$wi.Q?K:lzT{#SNJ+  (EP&~2gIJugQ!Aj-0#biKE vMB68DQT=vAb`!CSUaF,-g Gs37Zw>  2pl%dY8![6nK(S}@:nG9meX#v,<PK6:N1 %-tE,zPs!+ZYjDKiCvBNCFOn:[Snj{LpN j{D41PCnhQUb.!b(+z+y(:p( 7Eu4m;ma#t3+AiS<~8,2Ps%$J=vGMo #A6IZhA$7;uLE .G1be*4GA=&<nEV49#6Z42B |=_f! 1 0<~D.rSY8M`(s7_%UDH2tJ;NI<% @Zaxb$<|u3#ARyO3#to6!P;RmhC]eA+xToUy] c>amY{WgPOd*$!%~3<|kKO@=#M&4JEZ5>gM!`DXh++Dr<{OJP*!Ab8CPQWe#.c*9j -<vteZ$U)#2c=&syegr_0{^Ua@.l:NtD([}*}&kRzrhh`E([H_~?:P!*Gx*$B0rO:T{4df&B9=p(}R?fcwc@zTB1|W.%37MUvFR &`Ah`7|4=Cc6{qXu9itw([P`[z9:ye!`]g!4a_sukM@({r],-HE^r_FC0.Q)a1Q?!`Bs)(n93s_gtWpNEA!`u3.jdwDq:*2LyZ>~$(~qHG;[RnATny;,3ZK:mOv#IZHMqfmSo4RW@lt{y:x7 ;~nWhP,ZWS:w@^e) ;bq7AU)bP_JTTb|__8YnMP#ew:s0!VuzO?.!(5GPP,!{J f=+A;kVd4P$o4@B1i;29ai1a]F*G:#?|=r-YwAhdP,<_A%Tb}@;.9*7%.QI&vMSn2a]F|k AZM3K{1::HD#K3{h;81qmP6<QzKv:Ib2ee^;(aKyxnOULD8?_ A `ESTh8;aeuIzMtU#AA<o_tQEFw@q|q66BMoF]-xi,o_LH$lj:i*!`T$d62,jFtp?k#Ki4hmd4vF +NJ@}^Cg]&`a @}8!@YHj.H+v]3[PL[*(]Z ATT*A5]-tx@bHw% +(CJP.252GGB8mSx[v*Ve^rZAql;tG .S>G|_xFciWPQZkwF%!`=t~&;k 5+A|k<}!I15`.2L{]9gJEq-pDBybEo^|_^tNj(~Y)$+6%.t#A5`QWJ,L8DACUKJ:4jEUk(Ak9|%@KWtFNN?!`1mN*RJkm+?!Gs!!;0LTL 5#uA} tC~v5$!|A5kEA@ ;(T.zi#AMX>UcTz;~{kk`tV,V@FfR$}@sq=sM,^Fpbo1{_8eFK~4i6oz` ]i9*Hn{zy`BL`UlC[9!]T%mR mH&JnQf~8`tz43e529Fh$][sG!`mg}IZh}9kgRnowq$tlbW]7;_-l9&f*B,7CBl APF)nrLC%%YfqdnI]uV(L*+_R+kc~xhAHI-lr]Dff)D,y)~ lXVz4e; VNNSRHiPqj{k&w:|h#(xM_kEAKZOR&l-:%+HE 2Ug., M0z3xH,w@iS}gJGnOY`o0]-g08W3}.=`l4x}&tSR?&Si]rIvZV(e`*re X7iK;G 2;]7Erdifp:l&?AX3m-#x}l-:wOEBO_f[2cKCf,E`cT ;E_^S3`G9net()r8:1U!SQ8`@`-iSNH}u6zP< 5GV78;h(AA8( PPBP0$#rIk[SP%cRnkk7 `ow70)hw^IA2,9ba@v@@|D C; 5^FhTC&:=f1&5Hv{$a=F_ A3?!`Y, (q_h5*SP!my(b}kEAQHG|oB:IE@}q)f}Jf,fB3c .DvU|oDLMt+Q&X3nH1y==++%270p#:%]#*|55<jR]mwb,#7T@{~k_U`Cr_h?,1Ux7,9i,1%+`)+X{y&|_Ip1c A}i.!P&y+GM2f$[([I4$3QW%y3idR ; `q_jO:F(zw_2J2Yn)*d ADU3Wup<_]g!xi,$JT@A!)e#`,K:wxP`>bgAB7`e-}_yJf)}@5]iJ$sQ<+AE< o$kFCXKK&95}@A(BY#`1[%~x@5i_ !A*+tI?9<TPB65$ Rhh>FGiMe!K?B-q_i#N2iy-UBl|_-0HP8`6D19{9w@jm{(!&,oBBE+n4e#y9gIacIpn fPj4,o}U9]}*yw]9=MIBv&Jcifs 6|,A;kXgGfWd#G7;,#%23K#lnY8&Wd2k}1PW^i TrrAlfb{-o5+AIu35)W^U-R6IbgyG5.w@-2:C;kPLF J&%`<6 SiDg8%_~UO%RW<*zr|I-Q%lEDCQ.`t=[`lIrc:L)X>QQQ~4GTS*P6tLOG Af<#`g4! [~}@Pa!`FT ;iLn{P*RvU9FV{,)[-%b?2, rFARH-!xU853G-!`K!M y!4P#>m|PJqEDQ`ify0r_aZ-Pf86v5`U3@7q_7# $vwv%nF]p(A@AWg$lM_P)$TnBup]P,v?9%IIBV[<btZdw1? 28`n.}4B%MNTF& PZHwhzlKi?P6nmQHe#zAV|oD rtD[4L8wwz]K*w#Jqc^Vp2l?, (TWr: qV`w8MX>QwX+A>C,kdJHd`M@GmwM8oF42IZ*U!{n+<B:~Qpz !S  L[H:y(vwv7co;Ke,`B~qPm}@,J.GB*~5X=IoFl5*$~WFYqmO*4 JNmUXQ{#p[56Cr?DFwL5IQ^1heh}ebe*%%9C5:Cd>ZCfL)*ui&`f1^iV~h18V*3nhmyN^V|bUvws(%Z;k*&AAAS#(0NG55u^u3pP6-JoLh+J$Ue1-e R8#E+Agjj4I)]Z]lB&=x<8NZ[fzicp M>[yE}qr3@LO`j?Rv=~{%FX@mf!|*my50O&YbN5<,>E+sr<)5}[2#xMgXBP0VQBlY^X6!`KM05hDoy3gx#Y|_8+IBy2 +!{4]@{+6*ZFnB;Ytdg{4i^GTP%-+d9rXDlnIR| r.J>-7~C^c2([`;?[kh$0)Fp? ;T+Y,u9wPTIm!q(#.2m(aYMnT(.,o]Fdv~1<4oqxh^h$[$i!g[)h dk1^aP0SU9A6b{e.sWuw=`Rq(<0rwkQ94n3F<&{:coAk%S;|k)Z7|-7Mi-n7Ph8:ZK]:He:&VPK<V({=o4<zH0{@S:#d0~&Pm5L0PDuowPjRz#PDj-[NmZ.pD)U7a|Lxw]K2~@~mbYS ;i:SBA|Zj1g07Sw8n%[tt?v<W;R-ry#0Q7|g*6-PeP MiMLJ.?2U:I!x)psqe3x7f?j.9*[j-Mk`]$n?n!`K+#6M8_+0L`;[{1r,Z!=KnTNH6F`<~1u~Qzc2YQl2+l*rU$z~tPj1icd&N2!S t%~,~E8hh^&;-Dw5%!;J221HBIqM_:$zH`@J.,[n1yQ- k+ AZ6+(;F7tx9 (##4$?%4<z@s(FP64 A,iw#(Srr?V AE! Y.SWq]gO26{ze M4M0|82y:QELU!`KrH;Qj8s[YU&kw).8}*Bx:yL# }e! ycp)z^D LM=.G~gT$QFD ;{Z#rn,x{9.2}B&~-X{(;PXQTy-0mPQ1$:} ","w":47,"h":41,"x":22,"a":"7=4VOc$ RgiSL!326sZ_]   2@=[V9{)5H1q-a5+<8iPSj{-x71~uYL9$pvLy_gfb`<2i?Z<IhP_BP1dO){-R9@Prc.R4ybIuy%}NhWIxilbYO+N79O`#9i)7ARgLv]B2$_x;gPh^cW{r.cj7[cz96?h!#LyfoCx5>){2C%>T9)N2 D|C0Yd70%DF7,J_.@nw@PlEvz$@mdmy@251PBQt`fqr5u_R02ZHngf(4@HPZ3]Qo7R]n]ZdnM5jV_K=.R-v<#5o69sxj@]}Pa]h3YmQNsPLdbPnU-C:KR|3WQ!NNkqUHtj}OAnK-{V|7n0BYTA#qNNBRB$|7lwhe@NnBY74<{U)NBc`wXS|G@J ArErZe<I(_aeqwETA1z5;9WSwv8PH5z?cWFy-wgn#6|xG2r9ER7 aZ{eBwv|ynNU4DFuA7uR.ahI(dfSgZ`&{Gr{4Z!7Xuxyq`33,u2;N[i9(H#>C oCVou?TDIe<Ad AE+<|O><`-0.3_m^OPexEz@XMgKC8zU-0Xf)Bw5^v M9,~bm)QH%J>eJvJVw>VM%XscBZg8ej^C`ICDan`XH?P;c3pG1xB(iUKzGce<4j:  ","aw":38,"ah":46,"ax":19,"an":1}};
 // @SPRITES-END
 function d91(s) {
   let b = 0, n = 0, v = -1, o = '';
@@ -339,14 +338,14 @@ function whenTex(sc, key, fn) {
 function sprFrame(f) {
   const p = (f.pose = poseOf(f)), m = f.mv?.d, k = f.mv?.k || '';
   if (m?.dodge) return 2;
-  if (p === KO) return 5;
-  if (p === HIT) return 4;
+  if (p === 8) return 5;
+  if (p === 6) return 4;
   if (k === 'throw' || (m?.fire && f.mv.t >= m.s)) return 6;
-  if (p === JUMP) return 2;
-  if (p === CROUCH || (p === BLOCK && f.cr)) return 3;
-  if (p === WALK) return (f.anim >> 3) & 1;
-  if (p === CMD) return 6;
-  if (p === ATK) return m.low || m.kick || k[0] === 'c' ? 8 : m.head || m.sw || k[0] === 'S' ? 7 : 6;
+  if (p === 3) return 2;
+  if (p === 4 || (p === 5 && f.cr)) return 3;
+  if (p === 2) return (f.anim >> 3) & 1;
+  if (p === 12) return 6;
+  if (p === 10) return m.low || m.kick || k[0] === 'c' ? 8 : m.head || m.sw || k[0] === 'S' ? 7 : 6;
   if (!f.gr) return 2;
   return k[0] === 'c' ? 3 : 0;
 }
@@ -362,10 +361,10 @@ function drawSpr(sc, f, n, gb, gf, dep) {
   const im = f.img.setFrame(sprFrame(f)).setPosition(f.x, f.y + 3).ss(3 * f.fa, 3).sd(dep);
   im.sl(f.ck && n % 8 < 4 ? 0.4 : 1);
   if (f.mv?.d.parry && f.mv.t < f.mv.d.a) im.setTintFill(0xdff6ff);
-  else if (f.pose === BLOCK) im.setTint(0x9fd8ff); else if (f.buff) im.setTint(0xffe27a); else if (f.alt) im.setTint(0xb8a0ff); else im.clearTint();
+  else if (f.pose === 5) im.setTint(0x9fd8ff); else if (f.buff) im.setTint(0xffe27a); else if (f.alt) im.setTint(0xb8a0ff); else im.clearTint();
   if (f.ck > 0 && n % 8 < 4) { gf.ls(3, 0xff4fa3); gf.strokeCircle(f.x, f.y - 140, 16 + (n % 8)); }
   const a = f.aimg, m = f.mv?.d, act = m?.an && isActive(f);
-  const vis = f.an && !f.away && f.st !== KO;
+  const vis = f.an && !f.away && f.st !== 8;
   a.setVisible(vis);
   if (!vis) return;
   // el Ánima flota detrás (vaivén); Alexitico (Stand de Leo) va en el suelo a su lado, saltando al ritmo
@@ -398,16 +397,16 @@ function drawStage(sc) {
 // ---------------- Estado visual ----------------
 // pose: idle | walk | jump | crouch | block | hit | down | ko | pre | atk | rec | cmd (el Ánima ataca)
 function poseOf(f) {
-  if (f.st === KO || f.st === DOWN) return KO;
-  if (f.sn > 0) return f.st === BLOCK ? BLOCK : HIT;
+  if (f.st === 8 || f.st === 7) return 8;
+  if (f.sn > 0) return f.st === 5 ? 5 : 6;
   if (f.mv) {
     const m = f.mv.d, t = f.mv.t;
-    if (m.an) return CMD;
-    return t < m.s ? PRE : t < m.s + m.a || f.mv.land === 0 ? ATK : RECOV;
+    if (m.an) return 12;
+    return t < m.s ? 9 : t < m.s + m.a || f.mv.land === 0 ? 10 : 11;
   }
-  if (!f.gr) return JUMP;
-  if (f.cr) return CROUCH;
-  return M.abs(f.vx) > 0.1 ? WALK : IDLE;
+  if (!f.gr) return 3;
+  if (f.cr) return 4;
+  return M.abs(f.vx) > 0.1 ? 2 : 1;
 }
 // ¿El golpe está en sus frames activos?
 const isActive = (f) => f.mv && f.mv.t >= f.mv.d.s && (f.mv.t < f.mv.d.s + f.mv.d.a || f.mv.land === 0);
@@ -484,7 +483,7 @@ const gain = (f, n) => (f.mt = M.min(300, f.mt + n)); // súper: máx. 3 niveles
 
 function makeFighter(c, p, x, alt) {
   return {
-    c, p, x, y: FL, vx: 0, vy: 0, fa: p ? -1 : 1, hp: c.hp, mt: 0, st: IDLE, sn: 0, mv: null, gr: true, cr: false,
+    c, p, x, y: FL, vx: 0, vy: 0, fa: p ? -1 : 1, hp: c.hp, mt: 0, st: 1, sn: 0, mv: null, gr: true, cr: false,
     hd: 1, buff: 0, combo: 0, anim: 0, alt, an: false, ag: 100, ck: 0, away: false, jumps: 0, dn: 0, dash: 0,
     inp: { l: 0, r: 0, u: 0, d: 0 }, hist: [], pend: [], pendT: 0, pdir: 5, tick: 0, last6: -99, last4: -99, ait: 0, ch: 0,
   };
@@ -674,7 +673,7 @@ class Fight extends Phaser.Scene {
     (this.pr || []).forEach((p) => p.img?.destroy());
     this.pr = [];
     this.sparks = [];
-    this.ph = INTRO;
+    this.ph = 13;
     this.pt = 60;
     this.fz = 0;
     this.hs = 0;
@@ -712,7 +711,7 @@ class Fight extends Phaser.Scene {
   // Ejecuta un comando (golpe, especial, súper…). Devuelve false si ahora no se puede.
   cmd(f, k) {
     const o = f === this.f[0] ? this.f[1] : this.f[0];
-    if (this.ph !== FIGHT || f.sn > 0 || f.st === DOWN || f.st === KO || f.ck) return false;
+    if (this.ph !== 14 || f.sn > 0 || f.st === 7 || f.st === 8 || f.ck) return false;
     if (f.mv) {
       const mv = f.mv, rc = rankOf(mv.k), rn = rankOf(k);
       const canCancel = mv.con && mv.t >= mv.d.s && rc <= 3 && !mv.k.startsWith('j') && rn > rc && !k.startsWith('j');
@@ -728,9 +727,9 @@ class Fight extends Phaser.Scene {
     if (k === 'dodge') m = DODGE;
     else if (k === 'parry') m = PARRY;
     else if (k === 'throw') {
-      if (!f.gr || f.mv || M.abs(o.x - f.x) > 78 || !o.gr || o.sn > 0 || o.st === DOWN || o.st === KO || o.mv?.d.inv) return false;
+      if (!f.gr || f.mv || M.abs(o.x - f.x) > 78 || !o.gr || o.sn > 0 || o.st === 7 || o.st === 8 || o.mv?.d.inv) return false;
       m = THROW;
-      o.hp -= 12; o.vx = f.fa * 7; o.vy = -9; o.gr = false; o.st = HIT; o.sn = 34; o.kd = 1; o.mv = null;
+      o.hp -= 12; o.vx = f.fa * 7; o.vy = -9; o.gr = false; o.st = 6; o.sn = 34; o.kd = 1; o.mv = null;
       gain(f, 25);
       ftxt(this, o.x, o.y - 150, I + 'AL SUELO!', 0xffe14d, 28);
       sfx.heavy();
@@ -751,7 +750,7 @@ class Fight extends Phaser.Scene {
   }
 
   tgA(f) {
-    if (this.ph !== FIGHT || f.mv || f.sn > 0 || f.ck || f.st === DOWN || f.st === KO) return;
+    if (this.ph !== 14 || f.mv || f.sn > 0 || f.ck || f.st === 7 || f.st === 8) return;
     f.an = !f.an;
     if (f.an) { ftxt(this, PM.Clamp(f.x, 240, 560), f.y - 190, I + f.c.an + '!', f.c.ac, 26); sfx.anima(); } // nombres largos: sin salirse
     else tone(600, 0.15, 3, 0.06, 200);
@@ -847,12 +846,12 @@ class Fight extends Phaser.Scene {
   }
 
   hit(att, def, m, srcX, px, py) {
-    if (def.st === KO || def.st === DOWN || this.ph !== FIGHT) return false;
+    if (def.st === 8 || def.st === 7 || this.ph !== 14) return false;
     if (def.mv?.d.inv && def.mv.t < def.mv.d.inv) return false;
     if (def.mv?.d.parry && def.mv.t < def.mv.d.a) {
       // ¡PARRY!: sin daño; si fue un golpe directo, el atacante queda aturdido y el que desvió queda libre
       def.mv = null; gain(def, 12);
-      if (att.mv?.d === m) { att.mv = null; att.sn = 26; att.st = HIT; att.vx = 0; }
+      if (att.mv?.d === m) { att.mv = null; att.sn = 26; att.st = 6; att.vx = 0; }
       this.hs = 12;
       this.spark(px, py, 0xffffff);
       ftxt(this, def.x, def.y - 170, I + 'PARRY!', 0xffffff, 32);
@@ -863,10 +862,10 @@ class Fight extends Phaser.Scene {
     const dir = M.sign(def.x - srcX) || att.fa;
     const away = dir > 0 ? def.inp.r : def.inp.l;
     const crouch = !!def.inp.d;
-    const canBlock = def.gr && !def.mv && !def.ck && (def.sn <= 0 || def.st === BLOCK) && away && !(m.low && !crouch) && !(m.ov && crouch);
+    const canBlock = def.gr && !def.mv && !def.ck && (def.sn <= 0 || def.st === 5) && away && !(m.low && !crouch) && !(m.ov && crouch);
     const mult = att.buff ? 1.5 : 1;
     if (canBlock) {
-      def.sn = m.bs || m.hs - 4; def.st = BLOCK; def.vx = dir * m.k * 0.7; def.cr = crouch;
+      def.sn = m.bs || m.hs - 4; def.st = 5; def.vx = dir * m.k * 0.7; def.cr = crouch;
       // con Ánima activa el daño residual lo absorbe el espíritu
       if (def.an) def.ag -= m.d * 0.9; else if (m.sp) def.hp -= m.d * 0.2 * mult;
       gain(def, 4);
@@ -878,7 +877,7 @@ class Fight extends Phaser.Scene {
     }
     let dmg = m.d * mult * M.max(0.5, 1 - att.combo * 0.1);
     if (def.away) { dmg *= 2; ftxt(this, def.x, def.y - 190, I + 'DAÑO DOBLE!', 0xff3a3a, 22); }
-    def.hp -= dmg; def.mv = null; def.sn = m.hs; def.st = HIT; def.vx = dir * m.k; def.dash = 0;
+    def.hp -= dmg; def.mv = null; def.sn = m.hs; def.st = 6; def.vx = dir * m.k; def.dash = 0;
     if (def.an) def.ag -= dmg * 1.2;
     def.kd = m.kd || !def.gr || m.k >= 9;
     if (def.kd) { def.vy = -7; def.gr = false; }
@@ -902,7 +901,7 @@ class Fight extends Phaser.Scene {
   // Si la barra del Ánima se vacía: el espíritu se quiebra y quedas expuesto.
   ckC(f) {
     if (!f.an || f.ag > 0) return;
-    f.an = false; f.ag = 0; f.ck = 90; f.mv = null; f.st = HIT; f.sn = 0;
+    f.an = false; f.ag = 0; f.ck = 90; f.mv = null; f.st = 6; f.sn = 0;
     ftxt(this, f.x, f.y - 190, I + 'STAND QUEBRADO!', 0xff4fa3, 28);
     sfx.ck();
     this.cm.shake(200, 0.01);
@@ -916,17 +915,17 @@ class Fight extends Phaser.Scene {
     if (f.buff) f.buff--;
     f.away = f.an && this.pr.some((p) => p.o === f && p.kind === 'kid');
     if (!f.an) f.ag = M.min(100, f.ag + 0.35);
-    if (f.st === KO) { this.phys(f); return; }
-    if (f.ck > 0) { if (--f.ck === 0) f.st = IDLE; f.vx *= 0.8; this.phys(f); return; }
-    if (f.st === DOWN) { if (--f.dn <= 0) { f.st = IDLE; o.combo = 0; } this.phys(f); return; }
+    if (f.st === 8) { this.phys(f); return; }
+    if (f.ck > 0) { if (--f.ck === 0) f.st = 1; f.vx *= 0.8; this.phys(f); return; }
+    if (f.st === 7) { if (--f.dn <= 0) { f.st = 1; o.combo = 0; } this.phys(f); return; }
     if (f.sn > 0) {
       f.sn--;
-      if (f.sn === 0 && f.gr) { f.st = IDLE; o.combo = 0; }
+      if (f.sn === 0 && f.gr) { f.st = 1; o.combo = 0; }
       this.phys(f);
       return;
     }
-    if (f.st === HIT && !f.gr) { this.phys(f); return; }
-    if (this.ph !== FIGHT) { f.vx = 0; this.phys(f); return; }
+    if (f.st === 6 && !f.gr) { this.phys(f); return; }
+    if (this.ph !== 14) { f.vx = 0; this.phys(f); return; }
     if (f.mv) { this.sMv(f, o); this.phys(f); return; }
     if (f.gr) { f.fa = o.x > f.x ? 1 : -1; f.jumps = 0; f.airAtk = 0; i.ju = 0; }
     if (!f.gr) {
@@ -945,7 +944,7 @@ class Fight extends Phaser.Scene {
       const mv = (i.r ? 1 : 0) - (i.l ? 1 : 0);
       f.vx = mv * spd * (mv === -f.fa ? 0.75 : 1);
     }
-    f.st = IDLE;
+    f.st = 1;
     this.phys(f);
   }
 
@@ -961,7 +960,7 @@ class Fight extends Phaser.Scene {
       if (m.multi && (mv.t - m.s) % m.multi === 0) mv.hit = 0;
       if (!mv.hit) {
         const hb = { x: f.x + f.fa * m.hb[0], y: f.y - m.hb[1], w: m.hb[2], h: m.hb[3] };
-        if (o.st !== KO && overlap(hb, hurtbox(o))) {
+        if (o.st !== 8 && overlap(hb, hurtbox(o))) {
           mv.hit = 1;
           if (this.hit(f, o, m, f.x, (hb.x + o.x) / 2, hb.y) && f.mv) mv.con = 1;
         }
@@ -981,12 +980,12 @@ class Fight extends Phaser.Scene {
       if (!f.gr) {
         f.gr = true;
         if (f.mv && !f.mv.d.air) f.mv = null;
-        if (f.st === HIT && f.kd && f.st !== KO) { f.st = DOWN; f.dn = 36; f.sn = 0; f.kd = 0; this.cm.shake(80, 0.004); }
-        else if (f.st === HIT && f.sn <= 0) f.st = IDLE;
+        if (f.st === 6 && f.kd && f.st !== 8) { f.st = 7; f.dn = 36; f.sn = 0; f.kd = 0; this.cm.shake(80, 0.004); }
+        else if (f.st === 6 && f.sn <= 0) f.st = 1;
       }
       f.y = FL; f.vy = 0;
-      if (f.sn > 0 || f.st === KO || f.st === DOWN) f.vx *= 0.85;
-      else if (!f.mv && !f.dash && !(this.ph === FIGHT && (f.inp.l || f.inp.r) && !f.cr)) f.vx = 0;
+      if (f.sn > 0 || f.st === 8 || f.st === 7) f.vx *= 0.85;
+      else if (!f.mv && !f.dash && !(this.ph === 14 && (f.inp.l || f.inp.r) && !f.cr)) f.vx = 0;
     }
     f.x = PM.Clamp(f.x, 30, W - 30);
   }
@@ -999,7 +998,7 @@ class Fight extends Phaser.Scene {
       if (p.x < -60 || p.x > W + 60 || p.y > FL + 20) p.t = 0;
       if (p.t <= 0) continue;
       const o = p.o === a ? b : a;
-      if (o.st !== KO && overlap(p, hurtbox(o)) && this.hit(p.o, o, p, p.x - p.vx * 3, p.x, p.y)) {
+      if (o.st !== 8 && overlap(p, hurtbox(o)) && this.hit(p.o, o, p, p.x - p.vx * 3, p.x, p.y)) {
         p.t = 0;
         if (p.kind === 'kid') ftxt(this, p.x, p.y - 80, I + 'AUCH!', 0xff4fa3, 26);
       }
@@ -1019,7 +1018,7 @@ class Fight extends Phaser.Scene {
     const [a, b] = this.f;
     if (a.mv?.d.dodge || b.mv?.d.dodge) return;
     const dx = b.x - a.x;
-    if (M.abs(dx) < 50 && M.abs(a.y - b.y) < 100 && a.st !== KO && b.st !== KO) {
+    if (M.abs(dx) < 50 && M.abs(a.y - b.y) < 100 && a.st !== 8 && b.st !== 8) {
       const push = (50 - M.abs(dx)) / 2, s = dx >= 0 ? 1 : -1;
       a.x -= push * s; b.x += push * s;
       for (const f of this.f) f.x = PM.Clamp(f.x, 30, W - 30);
@@ -1041,7 +1040,7 @@ class Fight extends Phaser.Scene {
     }
     // La música lleva su propio reloj: el hitstop, el congelado del súper, la cámara lenta y la pantalla final no la cortan
     if (++this.mc % 9 < 1) music(this.mc / 9);
-    if (this.ph === END) { poll(); this.eIn(); return; }
+    if (this.ph === 15) { poll(); this.eIn(); return; }
     // Durante congelamientos no se lee input: los toques quedan en buffer para después.
     const md = this.d.mode; // 0 demo (CPU vs CPU) · 1 vs CPU · 2 versus
     for (const f of this.f.slice(0, md)) this.tDir(f);
@@ -1052,18 +1051,18 @@ class Fight extends Phaser.Scene {
     this.n++;
     md ? this.rHum(a) : this.rCPU(a, b);
     md > 1 ? this.rHum(b) : this.rCPU(b, a);
-    if (this.ph === INTRO && --this.pt <= 0) this.ph = FIGHT;
+    if (this.ph === 13 && --this.pt <= 0) this.ph = 14;
     this.sFi(a, b);
     this.sFi(b, a);
     this.pAp();
     this.sPr();
     this.sparks = this.sparks.filter((s) => ++s.t < 14);
-    if (this.ph === FIGHT) {
+    if (this.ph === 14) {
       this.sBan();
       // Jefe final: con menos de 30% de vida se enoja (el buff de Massu: más daño y velocidad) y la CPU se afina
       if (this.boss && !this.rg && b.hp > 0 && b.hp < b.c.hp * 0.3) { this.rg = 1; b.buff = 600; this.lv = 2; this.ann(I + 'AHORA SÍ!', 56, 900); sfx.super(); this.cm.shake(300, 0.01); }
       if (a.hp <= 0 || b.hp <= 0 || --this.tm < 1) this.rOv();
-    } else if (this.ph === KO && --this.pt <= 0) this.aKO();
+    } else if (this.ph === 8 && --this.pt <= 0) this.aKO();
   }
 
   // Plátano: cae cada 20 s cerca del centro (algo corrido hacia quien tiene menos vida),
@@ -1084,9 +1083,9 @@ class Fight extends Phaser.Scene {
       if (n.y === FL) tone(300, 0.08, 0, 0.05); }
     else if (--n.t <= 0) { this.ban = null; this.banT = 1200; return; }
     for (const f of this.f) {
-      if (f.st === DOWN || (f.st === HIT && f.sn > 0) || M.abs(f.x - n.x) > 40 || n.y < f.y - 130) continue;
+      if (f.st === 7 || (f.st === 6 && f.sn > 0) || M.abs(f.x - n.x) > 40 || n.y < f.y - 130) continue;
       gain(f, 50); f.ag = 100;
-      if (f.ck) { f.ck = 0; f.st = IDLE; }
+      if (f.ck) { f.ck = 0; f.st = 1; }
       ftxt(this, n.x, n.y - 140, I + 'PLÁTANO POWER!', 0xffe14d, 26);
       tone(880, 0.12, 0, 0.07); tone(1320, 0.25, 0, 0.06, 1760);
       this.cm.flash(120, 255, 225, 80);
@@ -1097,13 +1096,13 @@ class Fight extends Phaser.Scene {
 
   rOv() {
     const [a, b] = this.f;
-    this.ph = KO;
+    this.ph = 8;
     this.pt = 140;
     const ra = a.hp / a.c.hp, rb = b.hp / b.c.hp;
     this.rw = ra === rb ? -1 : ra > rb ? 0 : 1;
     if (this.rw >= 0) this.wins[this.rw]++;
     for (const f of this.f) {
-      if (f.hp <= 0) { f.hp = 0; f.st = KO; f.mv = null; f.an = false; f.vy = -9; f.gr = false; f.vx = (f === a ? -1 : 1) * 5; }
+      if (f.hp <= 0) { f.hp = 0; f.st = 8; f.mv = null; f.an = false; f.vy = -9; f.gr = false; f.vx = (f === a ? -1 : 1) * 5; }
     }
     // Sin K.O. al acabarse el tiempo: gana quien tiene más % de vida (rw, arriba)
     this.ann(this.tm > 0 ? 'K.O.' : I + 'TIEMPO!', 96, 1400);
@@ -1124,23 +1123,23 @@ class Fight extends Phaser.Scene {
   }
 
   mOv() {
-    this.ph = END;
+    this.ph = 15;
     const w = this.wins[0] >= 2 ? 0 : 1, wf = this.f[w], d = this.d;
     this.add.rectangle(W / 2, H / 2, W, H, 0x000000, 0.6).sd(28);
     const col = w ? '#ff6ec7' : '#e1ff00';
     txt(this, W / 2, 190, (d.mode > 1 ? 'P' + (w + 1) + ': ' : w ? 'CPU: ' : '') + wf.c.n + ' GANA', 44, col).sd(29).sa(-4);
     txt(this, W / 2, 270, '"' + wf.c.win + '"', 22).sd(29).setWordWrapWidth(680);
     let msg;
-    if (d.mode === 2) { msg = 'START: REVANCHA · B2: ELEGIR PERSONAJES'; this.next = REMATCH; }
-    else if (w === 0 && d.li + 1 < d.ladder.length) { msg = 'START: SIGUIENTE RIVAL → ' + CH[d.ladder[d.li + 1]].n; this.next = LADDER; }
+    if (d.mode === 2) { msg = 'START: REVANCHA · B2: ELEGIR PERSONAJES'; this.next = 16; }
+    else if (w === 0 && d.li + 1 < d.ladder.length) { msg = 'START: SIGUIENTE RIVAL → ' + CH[d.ladder[d.li + 1]].n; this.next = 17; }
     else if (w === 0) {
       txt(this, W / 2, 360, I + 'CAMPEÓN DE CHILE!', 50, YS, RD).sd(29).sa(-6);
       // Festejo: suena el tema del campeón (si tiene) y llueven estrellas con los colores de la bandera
       if (wf.c.th) TH = (TT = wf.c.th)[0].length;
       this.time.addEvent({ delay: 90, repeat: -1, callback: () => ftxt(this, PM.Between(80, 720), PM.Between(60, 320), '★', PU.GetRandom([0xd52b1e, 0xffffff, 0x0039a6]), 40).sd(28.5) });
       msg = 'START: VOLVER AL TÍTULO';
-      this.next = TITLE;
-    } else { msg = 'START: CONTINUAR · B2: TÍTULO'; this.next = REMATCH; }
+      this.next = 18;
+    } else { msg = 'START: CONTINUAR · B2: TÍTULO'; this.next = 16; }
     txt(this, W / 2, 470, msg, 18, YS).sd(29);
     // Récord (solo 1P): un título de campeón más para el luchador que ganó la escalera
     if (d.mode === 1 && !w && d.li > 1) { REC[d.a]++; saveRec(); }
@@ -1152,8 +1151,8 @@ class Fight extends Phaser.Scene {
     const d = this.d;
     if (any('START1', 'START2', 'P1_1', 'P2_1')) {
       sfx.ok();
-      if (this.next === REMATCH) this.scene.restart(d);
-      else if (this.next === LADDER) this.scene.restart({ ...d, li: d.li + 1, b: d.ladder[d.li + 1] });
+      if (this.next === 16) this.scene.restart(d);
+      else if (this.next === 17) this.scene.restart({ ...d, li: d.li + 1, b: d.ladder[d.li + 1] });
       else this.scene.start('T');
     } else if (any('P1_2', 'P2_2')) {
       sfx.sel();
